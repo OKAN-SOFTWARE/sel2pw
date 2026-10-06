@@ -4,6 +4,25 @@ All notable changes to `sel2pw` (the Converter). Format follows [Keep a Changelo
 
 ---
 
+## [2.0.9] — JOSS pre-submission docs + reproducibility
+
+Documentation release. No runtime behaviour change — same transformer rules, same CLI, same output. Addresses the two biggest reviewer concerns from the SoftwareX peer review before JOSS submission.
+
+### Added
+
+- **`STATUS.md` — "Outcome definitions (formal)"** section. Precise definitions for `scanned`, `cleanly converted`, `stubbed`, `skipped`, `mixed-cleanup`, `failed conversion`. Resolves the "terminology undefined" concern from peer review. "Cleanly converted" now explicitly means `(emitted file is not a stub) AND (tsc --noEmit produces zero errors on the file)`, and explicitly does NOT imply behavioural equivalence.
+- **`STATUS.md` — "Threats to validity"** section. Dedicated subsections for corpus selection bias, TS-error-count-as-effort-proxy limitation, classification using tool-generated reports, functional-equivalence evaluation limits, LLM path not empirically evaluated, Selenium `findElement` vs Playwright strict-mode semantic gap, external target-site drift, and single-reviewer classification.
+
+### Notes on dependency reproducibility
+
+Peer review raised that `^2.3.2`-style dependency ranges are not exact pins. `package-lock.json` is committed to the repository (as of v2.0.9 and earlier) and resolves every transitive dependency to an exact version. Anyone wishing to reproduce the benchmark against the v2.0.9 archived tag can run `npm ci` to install the exact same tree. A short-lived `npm-shrinkwrap.json` experiment was reverted because `npm shrinkwrap` is intended for applications rather than CLI libraries and produced platform-pinned trees that break CI across OSes; `package-lock.json` already provides the exact-version pinning reviewers asked for.
+
+### Not breaking
+
+Semver patch. No `src/` changes. `dist/` contents unchanged modulo rebuild timestamp. `STATUS.md` is not in the npm `files` array, so the published tarball is byte-identical to v2.0.8 for runtime users; the content lives in the GitHub source tag / Zenodo archive for reviewer and reader reference.
+
+---
+
 ## [2.0.6] — README migration-patterns reference expanded + Hamcrest matcher ordering fix
 
 Docs-only patch. The README's "What it converts" section grew from a single 20-row table into a **10-subsection categorised reference** with ~90 concrete Selenium/TestNG → Playwright mappings. Covers everything the pipeline actually does, including the v2.x additions that weren't in the older docs.

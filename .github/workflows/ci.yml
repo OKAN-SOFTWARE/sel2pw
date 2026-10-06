@@ -26,6 +26,11 @@ jobs:
       # and vitest crashes at import time (npm/cli#4828). Nuke + reinstall
       # with --include=optional so the platform's native binaries land.
       - name: Fresh install (rollup optional-deps workaround)
+        # v2.0.6 — same rollup workaround as release.yml. The Windows-
+        # generated package-lock.json only records win32 optional binaries
+        # so `npm ci` on Linux/macOS resolves without @rollup/rollup-linux-*
+        # and vitest crashes at import time (npm/cli#4828). Nuke + reinstall
+        # with --include=optional so the platform's native binaries land.
         run: |
           rm -rf node_modules package-lock.json
           npm install --no-audit --no-fund --include=optional
@@ -56,6 +61,11 @@ jobs:
         with: { node-version: 20, cache: npm }
       # Same rollup workaround as the build job above — see comment there.
       - name: Fresh install (rollup optional-deps workaround)
+        # v2.0.6 — same rollup workaround as release.yml. The Windows-
+        # generated package-lock.json only records win32 optional binaries
+        # so `npm ci` on Linux/macOS resolves without @rollup/rollup-linux-*
+        # and vitest crashes at import time (npm/cli#4828). Nuke + reinstall
+        # with --include=optional so the platform's native binaries land.
         run: |
           rm -rf node_modules package-lock.json
           npm install --no-audit --no-fund --include=optional
