@@ -124,6 +124,55 @@ npm test                 # subsequent runs — should be 40/40 green
 - **0.10.5** — selenium9–15 patches: classname reserved-word filter (Javadoc "class for" stops matching as `for`), customUtilDetector widened with `Exception$` / `Helpers$` / `Manager$` / `Annotation$` / `Retry` / `Transformer` patterns, BaseTest extractor regex relaxed for parameter-level annotations like `@Optional("chrome")`, conversion-result.json kebab-lookup fixed for underscore-prefixed and base-kind files.
 - **0.10.6** — CI matrix green. `createFailureStore` wraps SQLite open in try/catch and falls back to a no-op store on `SQLITE_BUSY` / locked file / permission denied / full disk. Test `convert()` calls pass `telemetryDb: false`. Coverage thresholds removed; coverage job marked `continue-on-error: true`.
 
+## Outcome definitions (formal)
+
+The following terms appear throughout `CONVERSION_REVIEW.md`, `FILE_MAPPING.md`, `conversion-result.json`, this document, and the JOSS paper. Precise definitions matter because peer review correctly flagged that "cleanly converted" was previously informal.
+
+| Term | Definition |
+| --- | --- |
+| **Scanned** | A file sel2pw's project scanner (`src/scanner/projectScanner.ts`) considered during the run. Equal to the count of `.java` / `.cs` / `.feature` files under the input directory that match the configured source stack. |
+| **Cleanly converted** | A file is cleanly converted when **both** of these hold: (a) sel2pw emits a Playwright TypeScript output file (not a `_legacy-stubs/*.ts` stub, not a skip record) **and** (b) `tsc --noEmit` on that single emitted file, under the output project's generated `tsconfig.json`, produces zero errors. This is a **syntactic + type-system** claim. It does **not** imply behavioural equivalence to the original Selenium test (that requires executing the migrated suite against the original target — see `examples/functional-equivalence-output/MANUAL_EDITS.md` for the one controlled case we have evidence for). |
+| **Stubbed** | sel2pw's `customUtilDetector` recognised the class as a legacy utility (test helpers, data factories, reporters, driver managers) with no 1:1 Playwright equivalent. A typed stub lands in `tests/_legacy-stubs/<name>.ts`; call sites compile; each call throws a documented `notImplemented()` at runtime. The user migrates each call site, then deletes the stub. |
+| **Skipped** | sel2pw's scanner classified the file as infrastructure Playwright replaces natively (`DriverManager`, `BrowserFactory`, `TargetFactory`, Aeonbits `@Config` interfaces, Sauce Labs cloud wrappers). No file is emitted; the Playwright replacement (fixture, `playwright.config.ts` project, env var) is noted in `FILE_MAPPING.md`. |
+| **Mixed-cleanup** | Emitted file compiles with 1-20 `tsc --noEmit` errors — typically unmapped idioms, custom-helper call sites, or Selenium patterns outside the current rule catalogue. A targeted hand pass per file resolves these. |
+| **Failed conversion** | sel2pw crashed, threw an uncaught exception, or produced no output for a file that was classified as convertible (page-object, test-class, base). As of v2.0.8 the 15-codebase / 409-file benchmark reports **zero failed conversions**. This is a crash-safety claim, not a compilation or equivalence claim. |
+
+## Threats to validity
+
+The 15-codebase benchmark described above should be read with the following caveats, several of which are addressed with planned future work.
+
+### Corpus selection bias
+
+The benchmark corpus (`examples/validation-batch-v2/sources/*`) was selected from GitHub using a filter of ≥50 stars, recent activity, and Java/Selenium as the primary stack. This filter favours relatively well-maintained projects. The primary use case for sel2pw is nevertheless *legacy* Selenium estates — long-dormant corporate test suites that may violate every convention present in the public corpus (Hungarian-notation locators, embedded SQL, custom reflection, framework-level annotations). Validation on genuinely legacy private repositories is categorically out of reach for OSS research but acknowledged as a gap. Future work: survey conference-talk retrospectives on Playwright migrations at scale (Shopify, Microsoft, etc.) and contrast reported pain points against the sel2pw rule catalogue.
+
+### `tsc --noEmit` error count as proxy for human effort
+
+Several outcome classifications and the "mixed-cleanup" bucket rely on the compiled-error count as a proxy for the human cleanup required. This is a conservative but imperfect proxy: one semantically-wrong line can cost more human time than fifty trivial import renames. The paper reports error counts as empirical measurements and does **not** convert them into human-hour estimates. The "100× speedup" claim present in earlier drafts was removed in v2.0.8 (`fea7f5d`) because no manual-migration baseline was measured.
+
+### Classification uses tool-generated review reports (acknowledged, not corrected)
+
+The per-file outcome classifications (cleanly converted / stubbed / mixed / skipped / failed) are produced by sel2pw itself and recorded in `CONVERSION_REVIEW.md` and `conversion-result.json`. Peer review correctly observed that evaluating the tool using classifications the tool produces is partially circular. An independent manual audit of a random sample is planned future work; it was deferred from the JOSS submission to keep scope tractable. For the one case where independent verification exists (`examples/functional-equivalence-output/`, controlled target), results agreed with the tool's own classification.
+
+### Functional equivalence evaluation is limited
+
+The sel2pw repository contains **one** controlled end-to-end functional equivalence test (`examples/functional-equivalence-output/`): a purpose-built 4-file Selenium+TestNG source targeting `https://www.saucedemo.com`, producing a Playwright suite that runs 2/2 passing after 2 documented hand edits. A real-world attempt against `eliasnogueira/selenium-java-lean-test-architecture` was abandoned because the test suite's target site had been taken offline — an honest finding about target-site drift in the Selenium ecosystem, documented at `examples/validation-batch-v2/outputs/eliasnogueira-func-test/MANUAL_EDITS.md`. Scaling functional-equivalence evaluation to the full 15-codebase corpus requires a live target per repository and is categorically harder than static-conversion evaluation.
+
+### LLM fallback not empirically evaluated
+
+The optional LLM fallback (`src/post/llmFallback.ts`) is shipped with provider adapters for Anthropic, OpenAI, and Google Gemini and is called only for constructs the rule catalogue cannot translate. The 15-codebase benchmark was intentionally conducted with the LLM path **disabled** (`llmFallback: undefined`) so that the reported outcomes reflect only the deterministic rule pipeline. The LLM path's actual contribution rate, success rate, and provider sensitivity have not been measured. The JOSS paper reflects this by scoping the LLM to a brief Future Work subsection rather than making it a load-bearing contribution.
+
+### Semantic gaps between Selenium and Playwright that no source-only tool can bridge
+
+Functional equivalence testing surfaced at least one **fundamental semantic difference** that sel2pw's static-rewrite architecture cannot fully resolve: Selenium's `findElement` silently returns the first match, while Playwright's `page.locator` matches all elements and treats single-element methods on multi-match locators as strict-mode violations. Resolving this correctly requires runtime inspection of the current DOM, which a source-code-only migration tool cannot perform. sel2pw preserves the original selector verbatim; such patterns surface as runtime strict-mode errors on the first test execution and are documented in `CONVERSION_REVIEW.md` for the migration engineer to resolve.
+
+### External target-site drift
+
+Legacy Selenium suites often target training applications or company staging environments that may go offline, redirect, or DOM-drift between the time the Selenium code was written and the time of migration. This is categorically outside sel2pw's scope: a source-code migration tool cannot verify that the target the original tests pointed at is still reachable, let alone that its structure has not changed. The `eliasnogueira-lean` run (target offline) is one documented instance.
+
+### Single-reviewer classification
+
+All manual classification decisions in this benchmark were made by the sel2pw author. Independent replication, inter-rater agreement on the manual sample, and third-party auditing are planned.
+
 ## Known deferred items (explicit, not lost)
 
 Phase 6 closed multi-window/tab semantics, custom-utility detection, comment-preservation primitives, and page-bag style. Phase 7 wired comment preservation into emitters. Phase 9 shipped telemetry. Phase 10 shipped the pre-built binary. The public npm publish (`@vijaypjavvadi/sel2pw`) closed the `npx`-without-install gap.
