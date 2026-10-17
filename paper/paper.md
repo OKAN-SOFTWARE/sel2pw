@@ -31,7 +31,7 @@ If you own a Selenium suite and you want Playwright, you usually have three opti
 
 You can rewrite it by hand, which costs months. You can hand it to a large language model, which rewrites things it does not understand and leaves no audit trail. Or you can re-record flows with a tool like Selenium IDE [@selenium-ide], which gives you fresh tests but throws away everything already in the repository.
 
-`sel2pw` sits in the middle. Every transformation is a readable rewrite rule — you can open the source, see what it does, and reproduce it. The Java front-end uses the `java-parser` abstract syntax tree [@java-parser] built on Chevrotain [@chevrotain], with a regex extractor as a fallback when the AST parse fails on a single file. On the 15-repository benchmark the fallback rate is 0% — the AST handled every Page Object and test class the scanner handed it, over 105 AST-eligible files in the measured sub-sample. The regex path is defensive, not load-bearing, and its invocation rate is now reported in each run's `conversion-result.json` under the `parser` key. The C# front-end is regex and balanced-brace only; it is marked experimental in the README and the status document. The full rule catalogue is in [`docs/CONVERSION_PATTERNS.md`](../docs/CONVERSION_PATTERNS.md). An LLM fallback for one-off unknown constructs exists but was off for everything reported here, and its impact is not yet measured. When the LLM path is enabled, user source is sent to the configured provider; the shipping defaults disable it precisely because a migration tool should not silently share proprietary test code with a third party, and the documentation flags this before any key is accepted.
+`sel2pw` sits in the middle. Every transformation is a readable rewrite rule — you can open the source, see what it does, and reproduce it. The Java front-end uses the `java-parser` abstract syntax tree [@java-parser] built on Chevrotain [@chevrotain], with a regex extractor as a fallback when the AST parse fails on a single file. On the 15-repository benchmark the fallback rate is 0% — the AST handled every Page Object and test class the scanner handed it, over 105 AST-eligible files in the measured sub-sample. The regex path is defensive, not load-bearing, and its invocation rate is now reported in each run's `conversion-result.json` under the `parser` key. The C# front-end is regex and balanced-brace only; it is marked experimental in the README and the status document. The full rule catalogue is in [`docs/CONVERSION_PATTERNS.md`](../docs/CONVERSION_PATTERNS.md). An LLM fallback for one-off unknown constructs exists but was off for everything reported here, and its impact is not yet measured. When the LLM path is enabled, user source is sent to the configured provider; the shipping defaults disable it precisely because a migration tool should not silently share proprietary test code with a third party, and the documentation flags this before any key is accepted. A follow-up release (v3.0) is being prepared that re-shapes the LLM path as a separate `fill-stubs` subcommand. It runs *after* the deterministic pipeline, reads `CONVERSION_REVIEW.md`, and populates the stubbed files one at a time with full provenance (provider, model, input hash, prompt hash) written in a header comment alongside each generated file. Measurement of its contribution, provider sensitivity, and reproducibility properties will be the subject of a follow-up submission.
 
 # Software description
 
@@ -43,22 +43,22 @@ The rewrites cover the usual suspects. `driver.findElement(By.id("x"))` becomes 
 
 # Benchmark
 
-The repository ships 15 open-source Selenium codebases under `examples/validation-batch-v2/`, 409 Java files in total. The sources are pinned by git commit SHA so the benchmark reproduces exactly against the archived v2.0.9 tag:
+The repository ships 15 open-source Selenium codebases under `examples/validation-batch-v2/sources/`, 409 Java files in total. Each row below is pinned by git commit SHA so the benchmark reproduces exactly against the archived v2.0.10 tag. The upstream repository URL for each slug is in `scripts/clone-validation-batch-v2.js`.
 
-| Tier | Repository | Pinned SHA | Framework | TS errors |
+| Tier | Slug | Pinned SHA | Framework | TS errors |
 | ---: | --- | --- | --- | ---: |
-| 1 | `cihat-kose/cucumber-jdbc-ui-db-learning-path` | `500449624f` | DB + UI BDD | 2 |
-| 1 | `kush1107/SeleniumDatabaseTesting_JDBC` | `ce0f3e9fb0` | DB inline | 1 |
-| 1 | `cihat-kose/cucumber-jdbc-ui-db-test-lab` | `9837a739ad` | DB + UI BDD | 86 |
-| 2 | `TheBookKnight/java-selenium-cucumber-restassured` | `79964ba684` | UI + API BDD | 2 |
-| 2 | `Chiranjeevi521/testng-cucumber-selenium-restassured` | `e180ecf472` | UI + API BDD | 41 |
-| 2 | `pavleciric89/UI-API-test-automation-framework` | `fb3aad6ac9` | UI + API BDD | 48 |
-| 3 | `anhtester/AutomationFrameworkSelenium` | `04b3c9bd58` | Production | 23 |
-| 3 | `eliasnogueira/selenium-java-lean-test-architecture` | `a47281d605` | TestContainers | 12 |
-| 3 | `rajatt95/MasterSeleniumFramework` | `9103307697` | Production | 26 |
-| 4 | `gauravkarvir/cucumber_testng_java` | `e6c78869d7` | Appium + Sauce Labs | 25 |
-| 4 | `maciejd/appium-selenium-testng-framework` | `47bece169b` | Appium + Web + API | 22 |
-| 5 | `anhtester/AutomationFrameworkCucumberTestNG` | `80051566be` | BDD | 38 |
+| 1 | `jdbc-learning` | `500449624f` | DB + UI BDD | 2 |
+| 1 | `jdbc-pure` | `ce0f3e9fb0` | DB inline | 1 |
+| 1 | `jdbc-test-lab` | `9837a739ad` | DB + UI BDD | 86 |
+| 2 | `ui-api-bookknight` | `79964ba684` | UI + API BDD | 2 |
+| 2 | `ui-api-chiranjeevi` | `e180ecf472` | UI + API BDD | 41 |
+| 2 | `ui-api-pavleciric` | `fb3aad6ac9` | UI + API BDD | 48 |
+| 3 | `anhtester-selenium` | `04b3c9bd58` | Production | 23 |
+| 3 | `eliasnogueira-lean` | `a47281d605` | TestContainers | 12 |
+| 3 | `master-selenium` | `9103307697` | Production | 26 |
+| 4 | `appium-gauravkarvir` | `e6c78869d7` | Appium + Sauce Labs | 25 |
+| 4 | `appium-maciejd` | `47bece169b` | Appium + Web + API | 22 |
+| 5 | `bdd-anhtester` | `80051566be` | BDD | 38 |
 
 Of the 409 files:
 
@@ -81,7 +81,7 @@ Record-and-playback tools such as Selenium IDE and Playwright Codegen [@selenium
 
 The full list is in [`STATUS.md`](../STATUS.md). The main ones: the benchmark corpus is filtered by GitHub stars, which biases away from the genuinely legacy private suites `sel2pw` is really aimed at; the compiled-error count is a rough proxy for human cleanup effort, not a direct measurement; the outcome classifications are produced by the tool itself (an independent audit is planned); functional equivalence is shown on one target because historical training apps keep going offline; and the LLM fallback is shipped but not evaluated.
 
-A note on reproducibility and security. The repository ships `package-lock.json` so `npm ci` against the archived v2.0.9 tag resolves every transitive dependency to the exact version used in the reported benchmark. `sel2pw` reads source files, parses them, and writes new files; it does not execute user code, which bounds the runtime attack surface to parser input handling, output path construction, and the optional LLM egress above. The threat model is written up alongside the vulnerability-reporting process in [`SECURITY.md`](../SECURITY.md).
+A note on reproducibility and security. The repository ships `package-lock.json` so `npm ci` against the archived v2.0.10 tag resolves every transitive dependency to the exact version used in the reported benchmark. `sel2pw` reads source files, parses them, and writes new files; it does not execute user code, which bounds the runtime attack surface to parser input handling, output path construction, and the optional LLM egress above. The threat model is written up alongside the vulnerability-reporting process in [`SECURITY.md`](../SECURITY.md).
 
 # Acknowledgements
 
