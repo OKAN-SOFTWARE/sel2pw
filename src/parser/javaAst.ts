@@ -38,6 +38,30 @@ type JavaParserModule = {
 
 let cachedParser: JavaParserModule | null = null;
 let parserMissing = false;
+
+// v2.0.10 — per-run counters for the AST-vs-regex fallback rate. Addressed
+// JOSS reviewer 1 feedback that the hybrid parser behaviour was not quantified.
+// Reset by `resetParserStats()` at the start of each `convert()` call; snapshot
+// via `getParserStats()` for inclusion in conversion-result.json.
+export interface ParserStats {
+  astAttempts: number;
+  astFallbacks: number;
+  fallbackRate: number;
+}
+const stats = { astAttempts: 0, astFallbacks: 0 };
+export function resetParserStats(): void {
+  stats.astAttempts = 0;
+  stats.astFallbacks = 0;
+}
+export function getParserStats(): ParserStats {
+  const rate = stats.astAttempts > 0 ? stats.astFallbacks / stats.astAttempts : 0;
+  return {
+    astAttempts: stats.astAttempts,
+    astFallbacks: stats.astFallbacks,
+    fallbackRate: Number(rate.toFixed(4)),
+  };
+}
+
 function loadParser(): JavaParserModule | null {
   if (parserMissing) return null;
   if (cachedParser !== null) return cachedParser;
@@ -58,10 +82,12 @@ function loadParser(): JavaParserModule | null {
 export function extractPageObject(file: JavaFile): PageObjectIR {
   const parser = loadParser();
   if (!parser) return extractPageObjectLegacy(file);
+  stats.astAttempts++;
   try {
     const cst = parser.parse(file.source);
     return extractPageObjectFromCst(file, cst);
   } catch (err: any) {
+    stats.astFallbacks++;
     logger.warn(
       { file: file.path, err: err.message },
       "AST parse failed; using regex extractor for this file",
@@ -73,10 +99,12 @@ export function extractPageObject(file: JavaFile): PageObjectIR {
 export function extractTestClass(file: JavaFile): TestClassIR {
   const parser = loadParser();
   if (!parser) return extractTestClassLegacy(file);
+  stats.astAttempts++;
   try {
     const cst = parser.parse(file.source);
     return extractTestClassFromCst(file, cst);
   } catch (err: any) {
+    stats.astFallbacks++;
     logger.warn(
       { file: file.path, err: err.message },
       "AST parse failed; using regex extractor for this file",

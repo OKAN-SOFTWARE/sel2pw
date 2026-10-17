@@ -6,6 +6,7 @@ import {
   JavaFile,
   ReviewItem,
 } from "../types";
+import { getParserStats, ParserStats } from "../parser/javaAst";
 
 /**
  * Structured per-file conversion outcome — written next to the human-readable
@@ -44,6 +45,8 @@ export interface ConversionResultJson {
   outputDir: string;
   sourceStack: string;
   generatedAt: string;
+  /** v2.0.10 — hybrid-parser transparency. See src/parser/javaAst.ts ParserStats. */
+  parser?: ParserStats;
   stats: {
     filesScanned: number;
     converted: number;
@@ -119,6 +122,7 @@ export function buildConversionResult(args: BuildResultArgs): ConversionResultJs
     outputDir,
     sourceStack,
     generatedAt: new Date().toISOString(),
+    parser: getParserStats(),
     stats: {
       filesScanned: summary.filesScanned,
       ...counts,

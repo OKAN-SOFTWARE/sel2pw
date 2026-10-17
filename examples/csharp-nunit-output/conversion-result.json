@@ -1,0 +1,59 @@
+{
+  "schema": "sel2pw.conversion-result.v1",
+  "inputDir": "/sessions/blissful-stoic-mendel/mnt/Converter/examples/csharp-nunit-target",
+  "outputDir": "/sessions/blissful-stoic-mendel/mnt/Converter/examples/csharp-nunit-output",
+  "sourceStack": "csharp-nunit",
+  "generatedAt": "2026-10-17T12:32:05.681Z",
+  "parser": {
+    "astAttempts": 0,
+    "astFallbacks": 0,
+    "fallbackRate": 0
+  },
+  "stats": {
+    "filesScanned": 3,
+    "converted": 3,
+    "stubbed": 0,
+    "skipped": 0,
+    "failed": 0,
+    "manualReviewItems": 0,
+    "warningItems": 0,
+    "infoItems": 1
+  },
+  "files": [
+    {
+      "source": "Pages/InventoryPage.cs",
+      "output": "pages/inventory.page.ts",
+      "sourceKind": "page-object",
+      "status": "converted",
+      "reason": "Converted cleanly.",
+      "action": "No action required.",
+      "severity": "ok"
+    },
+    {
+      "source": "Pages/LoginPage.cs",
+      "output": "tests/login.spec.ts",
+      "sourceKind": "page-object",
+      "status": "converted",
+      "reason": "Converted cleanly.",
+      "action": "No action required.",
+      "severity": "ok"
+    },
+    {
+      "source": "Tests/LoginTests.cs",
+      "output": "tests/login.spec.ts",
+      "sourceKind": "test-class",
+      "status": "converted",
+      "reason": "Converted cleanly.",
+      "action": "No action required.",
+      "severity": "ok"
+    }
+  ],
+  "projectNotes": [
+    {
+      "severity": "info",
+      "message": "Source stack: csharp-nunit. Detected 3 C# files (no .feature files) — using NUnit/MSTest → Playwright Test path."
+    }
+  ],
+  "reviewReportPath": "CONVERSION_REVIEW.md",
+  "migrationNotesPath": "MIGRATION_NOTES.md"
+}

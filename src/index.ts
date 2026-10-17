@@ -3,7 +3,7 @@ import { scanProject } from "./scanner/projectScanner";
 // AST extractor is the canonical source. It transparently falls back to the
 // regex extractor when java-parser isn't installed or a single file fails to
 // parse — see src/parser/javaAst.ts for the recovery strategy.
-import { extractPageObject, extractTestClass } from "./parser/javaAst";
+import { extractPageObject, extractTestClass, resetParserStats } from "./parser/javaAst";
 import { emitPageObject } from "./emitters/pageObjectEmitter";
 import { emitTestClass } from "./emitters/testClassEmitter";
 import { emitProject } from "./emitters/projectEmitter";
@@ -152,6 +152,9 @@ export async function convert(opts: ConvertOptions): Promise<{
   const stack = opts.forceStack ?? stackDetection.stack;
   logger.info({ stack, evidence: stackDetection.evidence }, "source stack");
 
+  // v2.0.10 — reset the AST-vs-regex fallback counters so each convert()
+  // call reports its own hybrid-parser rate in conversion-result.json.
+  resetParserStats();
   const javaFiles: JavaFile[] = await scanProject(inputDir);
   const converted: ConvertedFile[] = [];
   const warnings: ReviewItem[] = [];

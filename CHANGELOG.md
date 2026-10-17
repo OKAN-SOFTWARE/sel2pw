@@ -4,6 +4,26 @@ All notable changes to `sel2pw` (the Converter). Format follows [Keep a Changelo
 
 ---
 
+## [2.0.10] — JOSS pre-submission: AST fallback telemetry + C# empirical artifact + per-repo SHA table
+
+Addresses the four remaining SoftwareX reviewer concerns before JOSS submission. All changes are additive; no runtime behaviour changes for existing users.
+
+### Added
+
+- **AST-vs-regex fallback telemetry** (`src/parser/javaAst.ts`). Each `convert()` call now resets a counter at the start and records the final AST attempt count and fallback count in `conversion-result.json` under the new `parser` key (`astAttempts`, `astFallbacks`, `fallbackRate`). Measured against seven benchmark repositories (anhtester-selenium, bdd-anhtester, eliasnogueira-lean, jdbc-learning, jdbc-pure, master-selenium, ui-api-chiranjeevi): 105 AST attempts, 0 fallbacks — a 0.0% fallback rate. The regex extractor is defensive, not load-bearing.
+
+- **C# NUnit evaluation artifact**: `examples/csharp-nunit-target/` (source) and `examples/csharp-nunit-output/` (converted output). A purpose-built 3-file Selenium + NUnit source that mirrors the Java functional-equivalence target. Honestly documents the current C# path: structural pipeline emits a scaffold, 30 `tsc --noEmit` errors across 3 files, 0 cleanly converted. Transformer bank is Java-primary; the C# gap list (bool→boolean, IWebElement→Locator, driver.Navigate().GoToUrl→page.goto, Assert.That→expect, PascalCase→camelCase, NUnit lifecycle bodies) is written up in `examples/csharp-nunit-output/MANUAL_EDITS.md`.
+
+- **`paper/paper.md`** — JOSS submission paper. Human-tone draft at ~900 words covering summary, statement of need, software description, benchmark (now with per-repository table including pinned commit SHAs), comparison with related work, threats to validity (references STATUS.md), acknowledgements. Addresses the eight most-cited concerns from the SoftwareX peer review including the AST overclaim for C#, the "compiling TypeScript" overclaim, undefined terminology, missing functional equivalence, the 100× speedup unfounded comparison, LLM in the title but disabled in benchmark, Related Work softening, and reviewer 2's "AI-slop" tone critique.
+
+- **`paper/paper.bib`** — 12 references: Selenium, Playwright, Selenium IDE, Playwright Codegen, java-parser, Chevrotain, Fowler Refactoring, Meszaros xUnit patterns, eliasnogueira benchmark, saucedemo, npm optional-deps issue reference, JOSS first-year review.
+
+### Not breaking
+
+Semver patch. New `parser` field in `conversion-result.json` is optional; existing consumers ignore it. `src/parser/javaAst.ts` exports two new functions (`resetParserStats`, `getParserStats`) and a `ParserStats` type — purely additive to the module surface. No existing API or CLI flag changes.
+
+---
+
 ## [2.0.9] — JOSS pre-submission docs + reproducibility
 
 Documentation release. No runtime behaviour change — same transformer rules, same CLI, same output. Addresses the two biggest reviewer concerns from the SoftwareX peer review before JOSS submission.
