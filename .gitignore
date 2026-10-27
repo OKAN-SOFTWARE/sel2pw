@@ -28,3 +28,7 @@ build/_pkg-temp-*
 Thumbs.db
 .vs/
 *.swp
+
+paper/*.pdf
+validation_week_plan.md
+
