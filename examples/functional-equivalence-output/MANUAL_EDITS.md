@@ -1,10 +1,10 @@
 # Manual edits applied to make the sel2pw scaffold runnable
 
-This folder is the **functional-equivalence evidence artifact** for the sel2pw JOSS paper. It documents the minimum human intervention required to take the raw sel2pw v2.0.8 scaffold and produce a running Playwright test suite whose behaviour matches the original Selenium+TestNG source.
+This folder is the **functional-equivalence evidence artifact** for sel2pw. It documents the minimum human intervention required to take the raw sel2pw v2.0.8 scaffold and produce a running Playwright test suite whose behaviour matches the original Selenium+TestNG source.
 
-**Source:** `examples/functional-equivalence-target/` — a purpose-built minimal Selenium + TestNG project written for this evaluation. Two tests (positive and negative login), one Page Object per screen, standard TestNG lifecycle in `BaseTest`. Targets `https://www.saucedemo.com`, Sauce Labs' public demo site — stable since 2016 and industry-standard for Selenium evaluation, so the target is guaranteed not to drift over the paper's review period.
+**Source:** `examples/functional-equivalence-target/` — a purpose-built minimal Selenium + TestNG project written for this evaluation. Two tests (positive and negative login), one Page Object per screen, standard TestNG lifecycle in `BaseTest`. Targets `https://www.saucedemo.com`, Sauce Labs' public demo site, a stable public demo site, so the target is unlikely to drift.
 
-**Why a purpose-built source rather than a real-world OSS repo:** the first functional-equivalence attempt used `eliasnogueira/selenium-java-lean-test-architecture` (a real 2018 Selenium framework). The scaffold compiled and executed, but the target site had gone offline — Elias took down the training booking app and the URL now redirects to his blog. This is a class of validation obstacle no source-code-only migration tool can solve, and it is documented in the paper's Threats to Validity section as an honest empirical finding. To produce a positive-outcome evidence run for the paper, this folder uses a controlled target with a live site instead.
+**Why a purpose-built source rather than a real-world OSS repo:** the first functional-equivalence attempt used `eliasnogueira/selenium-java-lean-test-architecture` (a real 2018 Selenium framework). The scaffold compiled and executed, but the target site had gone offline — the training booking app was taken down and the URL now redirects elsewhere. This is a class of validation obstacle no source-code-only migration tool can solve, and it is documented in `STATUS.md` under Threats to validity. To produce a positive-outcome evidence run, this folder uses a controlled target with a live site instead.
 
 **Conversion command:**
 

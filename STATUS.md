@@ -126,7 +126,7 @@ npm test                 # subsequent runs — should be 40/40 green
 
 ## Outcome definitions (formal)
 
-The following terms appear throughout `CONVERSION_REVIEW.md`, `FILE_MAPPING.md`, `conversion-result.json`, this document, and the JOSS paper. Precise definitions matter because peer review correctly flagged that "cleanly converted" was previously informal.
+The following terms appear throughout `CONVERSION_REVIEW.md`, `FILE_MAPPING.md`, `conversion-result.json`, and this document. Precise definitions matter because "cleanly converted" can otherwise be read as anything from "no crash" to "behaves the same".
 
 | Term | Definition |
 | --- | --- |
@@ -143,15 +143,15 @@ The 15-codebase benchmark described above should be read with the following cave
 
 ### Corpus selection bias
 
-The benchmark corpus (`examples/validation-batch-v2/sources/*`) was selected from GitHub using a filter of ≥50 stars, recent activity, and Java/Selenium as the primary stack. This filter favours relatively well-maintained projects. The primary use case for sel2pw is nevertheless *legacy* Selenium estates — long-dormant corporate test suites that may violate every convention present in the public corpus (Hungarian-notation locators, embedded SQL, custom reflection, framework-level annotations). Validation on genuinely legacy private repositories is categorically out of reach for OSS research but acknowledged as a gap. Future work: survey conference-talk retrospectives on Playwright migrations at scale (Shopify, Microsoft, etc.) and contrast reported pain points against the sel2pw rule catalogue.
+The benchmark corpus (`examples/validation-batch-v2/sources/*`) was selected from public GitHub projects that use Java and Selenium as the primary stack, covering a range of sizes and styles. Public projects tend to be better maintained than internal ones. The primary use case for sel2pw is nevertheless *legacy* Selenium estates — long-dormant corporate test suites that may violate every convention present in the public corpus (Hungarian-notation locators, embedded SQL, custom reflection, framework-level annotations). Validation on genuinely legacy private repositories is categorically out of reach for OSS research but acknowledged as a gap. Future work: survey conference-talk retrospectives on Playwright migrations at scale (Shopify, Microsoft, etc.) and contrast reported pain points against the sel2pw rule catalogue.
 
 ### `tsc --noEmit` error count as proxy for human effort
 
-Several outcome classifications and the "mixed-cleanup" bucket rely on the compiled-error count as a proxy for the human cleanup required. This is a conservative but imperfect proxy: one semantically-wrong line can cost more human time than fifty trivial import renames. The paper reports error counts as empirical measurements and does **not** convert them into human-hour estimates. The "100× speedup" claim present in earlier drafts was removed in v2.0.8 (`fea7f5d`) because no manual-migration baseline was measured.
+Several outcome classifications and the "mixed-cleanup" bucket rely on the compiled-error count as a proxy for the human cleanup required. This is a conservative but imperfect proxy: one semantically-wrong line can cost more human time than fifty trivial import renames. This project reports error counts as empirical measurements and does **not** convert them into human-hour estimates. No time-saving figure is claimed because no manual-migration baseline has been measured.
 
 ### Classification uses tool-generated review reports (acknowledged, not corrected)
 
-The per-file outcome classifications (cleanly converted / stubbed / mixed / skipped / failed) are produced by sel2pw itself and recorded in `CONVERSION_REVIEW.md` and `conversion-result.json`. Peer review correctly observed that evaluating the tool using classifications the tool produces is partially circular. An independent manual audit of a random sample is planned future work; it was deferred from the JOSS submission to keep scope tractable. For the one case where independent verification exists (`examples/functional-equivalence-output/`, controlled target), results agreed with the tool's own classification.
+The per-file outcome classifications (cleanly converted / stubbed / mixed / skipped / failed) are produced by sel2pw itself and recorded in `CONVERSION_REVIEW.md` and `conversion-result.json`. Evaluating the tool using classifications the tool produces is partially circular. An independent manual audit of a random sample is planned future work. For the one case where independent verification exists (`examples/functional-equivalence-output/`, controlled target), results agreed with the tool's own classification.
 
 ### Functional equivalence evaluation is limited
 
@@ -159,7 +159,7 @@ The sel2pw repository contains **one** controlled end-to-end functional equivale
 
 ### LLM fallback not empirically evaluated
 
-The optional LLM fallback (`src/post/llmFallback.ts`) is shipped with provider adapters for Anthropic, OpenAI, and Google Gemini and is called only for constructs the rule catalogue cannot translate. The 15-codebase benchmark was intentionally conducted with the LLM path **disabled** (`llmFallback: undefined`) so that the reported outcomes reflect only the deterministic rule pipeline. The LLM path's actual contribution rate, success rate, and provider sensitivity have not been measured. The JOSS paper reflects this by scoping the LLM to a brief Future Work subsection rather than making it a load-bearing contribution.
+The optional LLM fallback (`src/post/llmFallback.ts`) is shipped with provider adapters for Anthropic, OpenAI, and Google Gemini and is called only for constructs the rule catalogue cannot translate. The 15-codebase benchmark was intentionally conducted with the LLM path **disabled** (`llmFallback: undefined`) so that the reported outcomes reflect only the deterministic rule pipeline. The LLM path's actual contribution rate, success rate, and provider sensitivity have not been measured.
 
 ### Semantic gaps between Selenium and Playwright that no source-only tool can bridge
 
@@ -195,8 +195,8 @@ Genuinely remaining deferrals:
 
 1. **Ship 0.10.7 with ESLint validator over emitted output** (in progress in this branch). Catches subtle bugs in our emitters at convert-time, before the user runs `playwright test`.
 2. **Publish the VS Code extension** to the Visual Studio Marketplace once the scaffold is filled out. Discoverability lever — most QA folks find tools through their IDE, not npm search.
-3. **Publish the migration playbook** as a Medium / dev.to article + cross-link from the npm package page. Drives installs; doubles as authored evidence.
-4. **Decide on Phase 0 (platform UI wizard) vs more codebase validation.** UI is L-effort; another 10 codebases is M-effort with stronger EB1A signal.
+3. **Publish the migration playbook** as a Medium / dev.to article + cross-link from the npm package page. Drives installs.
+4. **Decide on Phase 0 (platform UI wizard) vs more codebase validation.** UI is L-effort; another 10 codebases is M-effort and widens the benchmark.
 5. **Tag v1.0.0** once 3-5 real users have run sel2pw on their own legacy Selenium suites and reported back. Realistic ETA: 2-3 months from the public publish.
 
 ## Files of interest

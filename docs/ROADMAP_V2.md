@@ -513,7 +513,7 @@ Realistic if you treat sel2pw as a 10-15 hour/week commitment. Faster if you go 
 
 ## How to use this document
 
-This roadmap is the source of truth for sel2pw v2.x. Anyone — contributors, users, employers, EB1A reviewers — can read it and understand the trajectory.
+This roadmap is the source of truth for sel2pw v2.x. Anyone — contributors and users — can read it and understand the trajectory.
 
 **Update it when:**
 - A theme moves from "planned" to "in progress" (add target date)

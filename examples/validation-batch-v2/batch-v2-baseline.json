@@ -1,7 +1,7 @@
 {
   "schema": "sel2pw-validation-batch-v2/1.0",
   "mode": "fast",
-  "cliPath": "E:\\EB1A_Research\\Application\\Converter\\dist\\cli.js",
+  "cliPath": "dist\\cli.js",
   "cliVersion": "1.0.10",
   "runStartedAt": "2026-06-20T15:08:39.691Z",
   "runCompletedAt": "2026-06-20T15:09:05.847Z",
@@ -448,7 +448,7 @@
       "cloneStatus": "skipped-missing",
       "convertStatus": "failed",
       "convertMs": 269,
-      "convertError": "Conversion failed: Input directory does not exist: E:\\EB1A_Research\\Application\\Converter\\examples\\validation-batch-v2\\sources\\bdd-nisvek | "
+      "convertError": "Conversion failed: Input directory does not exist: examples\\validation-batch-v2\\sources\\bdd-nisvek | "
     },
     {
       "slug": "bdd-anhtester",

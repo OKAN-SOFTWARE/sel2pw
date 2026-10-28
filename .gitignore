@@ -32,3 +32,5 @@ Thumbs.db
 paper/*.pdf
 validation_week_plan.md
 
+# Research papers are kept outside this repo
+paper/

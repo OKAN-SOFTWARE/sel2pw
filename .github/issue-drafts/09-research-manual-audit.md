@@ -5,7 +5,7 @@ labels: ["research", "help wanted"]
 
 **Context**
 
-The outcome classifications used in sel2pw's 15-repository benchmark (`cleanly converted` / `stubbed` / `mixed cleanup` / `skipped` / `failed`) are currently produced by sel2pw itself and recorded in `conversion-result.json` and `CONVERSION_REVIEW.md`. Peer-review feedback flagged that evaluating the tool using classifications the tool produces is partially circular. This is honestly acknowledged in `STATUS.md` under "Threats to validity" as a planned future-work item.
+The outcome classifications used in sel2pw's 15-repository benchmark (`cleanly converted` / `stubbed` / `mixed cleanup` / `skipped` / `failed`) are currently produced by sel2pw itself and recorded in `conversion-result.json` and `CONVERSION_REVIEW.md`. Evaluating the tool using classifications the tool produces is partially circular. This is acknowledged in `STATUS.md` under "Threats to validity" as a planned future-work item.
 
 **Methodology sketch**
 
@@ -21,4 +21,4 @@ A volunteer with practical Selenium + Playwright experience, approximately 3 hou
 
 **Why it matters**
 
-Addresses one of the main peer-review concerns from the sel2pw submission cycle. Would be cited in the next JOSS submission as independent validation of the outcome taxonomy. Credit via commit history + explicit mention in CHANGELOG and paper.md Acknowledgements.
+Gives the outcome taxonomy an independent check instead of relying on the tool's own reports. Credit via commit history and an explicit mention in the CHANGELOG.

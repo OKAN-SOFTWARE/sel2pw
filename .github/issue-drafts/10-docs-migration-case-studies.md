@@ -28,4 +28,4 @@ Target ~400 words per case study. Add to `docs/migration-playbook.md` as a new "
 
 **Why it matters**
 
-Converts abstract "sel2pw does X" into "here's exactly what happened on this real repo", which is the single most persuasive doc content for teams evaluating the tool. Also doubles as research evidence for the next JOSS submission.
+Converts abstract "sel2pw does X" into "here's exactly what happened on this real repo", which is the single most persuasive doc content for teams evaluating the tool.

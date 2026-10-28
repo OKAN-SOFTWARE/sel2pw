@@ -32,4 +32,4 @@ Target under 50 added lines. Should feel like a quick-start, not a wall of text.
 
 **Why it matters**
 
-Lowers the activation energy for first-time contributors. Addresses one of the signals peer-review venues look for ("evidence of pathways for community contribution").
+Lowers the activation energy for first-time contributors. Makes it clear how anyone can contribute.

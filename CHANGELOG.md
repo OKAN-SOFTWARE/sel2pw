@@ -4,9 +4,9 @@ All notable changes to `sel2pw` (the Converter). Format follows [Keep a Changelo
 
 ---
 
-## [2.0.10] — JOSS pre-submission: AST fallback telemetry + C# empirical artifact + per-repo SHA table
+## [2.0.10] — AST fallback telemetry + C# empirical artifact + per-repo SHA table
 
-Addresses the four remaining SoftwareX reviewer concerns before JOSS submission. All changes are additive; no runtime behaviour changes for existing users.
+All changes are additive; no runtime behaviour changes for existing users.
 
 ### Added
 
@@ -14,9 +14,7 @@ Addresses the four remaining SoftwareX reviewer concerns before JOSS submission.
 
 - **C# NUnit evaluation artifact**: `examples/csharp-nunit-target/` (source) and `examples/csharp-nunit-output/` (converted output). A purpose-built 3-file Selenium + NUnit source that mirrors the Java functional-equivalence target. Honestly documents the current C# path: structural pipeline emits a scaffold, 30 `tsc --noEmit` errors across 3 files, 0 cleanly converted. Transformer bank is Java-primary; the C# gap list (bool→boolean, IWebElement→Locator, driver.Navigate().GoToUrl→page.goto, Assert.That→expect, PascalCase→camelCase, NUnit lifecycle bodies) is written up in `examples/csharp-nunit-output/MANUAL_EDITS.md`.
 
-- **`paper/paper.md`** — JOSS submission paper. Human-tone draft at ~900 words covering summary, statement of need, software description, benchmark (now with per-repository table including pinned commit SHAs), comparison with related work, threats to validity (references STATUS.md), acknowledgements. Addresses the eight most-cited concerns from the SoftwareX peer review including the AST overclaim for C#, the "compiling TypeScript" overclaim, undefined terminology, missing functional equivalence, the 100× speedup unfounded comparison, LLM in the title but disabled in benchmark, Related Work softening, and reviewer 2's "AI-slop" tone critique.
 
-- **`paper/paper.bib`** — 12 references: Selenium, Playwright, Selenium IDE, Playwright Codegen, java-parser, Chevrotain, Fowler Refactoring, Meszaros xUnit patterns, eliasnogueira benchmark, saucedemo, npm optional-deps issue reference, JOSS first-year review.
 
 ### Not breaking
 
@@ -24,22 +22,22 @@ Semver patch. New `parser` field in `conversion-result.json` is optional; existi
 
 ---
 
-## [2.0.9] — JOSS pre-submission docs + reproducibility
+## [2.0.9] — Outcome definitions, threats to validity, reproducibility notes
 
-Documentation release. No runtime behaviour change — same transformer rules, same CLI, same output. Addresses the two biggest reviewer concerns from the SoftwareX peer review before JOSS submission.
+Documentation release. No runtime behaviour change — same transformer rules, same CLI, same output.
 
 ### Added
 
-- **`STATUS.md` — "Outcome definitions (formal)"** section. Precise definitions for `scanned`, `cleanly converted`, `stubbed`, `skipped`, `mixed-cleanup`, `failed conversion`. Resolves the "terminology undefined" concern from peer review. "Cleanly converted" now explicitly means `(emitted file is not a stub) AND (tsc --noEmit produces zero errors on the file)`, and explicitly does NOT imply behavioural equivalence.
+- **`STATUS.md` — "Outcome definitions (formal)"** section. Precise definitions for `scanned`, `cleanly converted`, `stubbed`, `skipped`, `mixed-cleanup`, `failed conversion`. "Cleanly converted" now explicitly means `(emitted file is not a stub) AND (tsc --noEmit produces zero errors on the file)`, and explicitly does NOT imply behavioural equivalence.
 - **`STATUS.md` — "Threats to validity"** section. Dedicated subsections for corpus selection bias, TS-error-count-as-effort-proxy limitation, classification using tool-generated reports, functional-equivalence evaluation limits, LLM path not empirically evaluated, Selenium `findElement` vs Playwright strict-mode semantic gap, external target-site drift, and single-reviewer classification.
 
 ### Notes on dependency reproducibility
 
-Peer review raised that `^2.3.2`-style dependency ranges are not exact pins. `package-lock.json` is committed to the repository (as of v2.0.9 and earlier) and resolves every transitive dependency to an exact version. Anyone wishing to reproduce the benchmark against the v2.0.9 archived tag can run `npm ci` to install the exact same tree. A short-lived `npm-shrinkwrap.json` experiment was reverted because `npm shrinkwrap` is intended for applications rather than CLI libraries and produced platform-pinned trees that break CI across OSes; `package-lock.json` already provides the exact-version pinning reviewers asked for.
+`^2.3.2`-style dependency ranges in `package.json` are not exact pins, but `package-lock.json` is committed to the repository (as of v2.0.9 and earlier) and resolves every transitive dependency to an exact version. Anyone wishing to reproduce the benchmark against the v2.0.9 archived tag can run `npm ci` to install the exact same tree. A short-lived `npm-shrinkwrap.json` experiment was reverted because `npm shrinkwrap` is intended for applications rather than CLI libraries and produced platform-pinned trees that break CI across OSes; `package-lock.json` already provides exact-version pinning.
 
 ### Not breaking
 
-Semver patch. No `src/` changes. `dist/` contents unchanged modulo rebuild timestamp. `STATUS.md` is not in the npm `files` array, so the published tarball is byte-identical to v2.0.8 for runtime users; the content lives in the GitHub source tag / Zenodo archive for reviewer and reader reference.
+Semver patch. No `src/` changes. `dist/` contents unchanged modulo rebuild timestamp. `STATUS.md` is not in the npm `files` array, so the published tarball is byte-identical to v2.0.8 for runtime users; the content lives in the GitHub source tag / Zenodo archive for reference.
 
 ---
 
@@ -76,7 +74,7 @@ Semver patch. Zero code changes — `src/` untouched. `git diff --stat` shows on
 
 ### Why this release
 
-Referenced in the JOSS interim-cadence plan (§7.1, September 2026 entry) as a low-risk, high-user-facing-value docs pass. Documents the ~90 rules that ship in v2.0.5 so users landing on the npm page or GitHub README can see immediately what the migration covers instead of running a conversion to find out.
+A low-risk, high-value docs pass. Documents the ~90 rules that ship in v2.0.5 so users landing on the npm page or GitHub README can see immediately what the migration covers instead of running a conversion to find out.
 
 ---
 
@@ -124,7 +122,7 @@ Semver patch. The `dryRunPreview` field is additive on the `convert()` return ty
 
 ### Why this release, why now
 
-Referenced in the JOSS interim-cadence plan (§7.1, September 2026 entry) as a low-risk, high-visibility feature that keeps shipping velocity healthy during the Software Impacts review window. Delivered ahead of schedule.
+A low-risk, high-visibility feature.
 
 ### Validated against
 
@@ -1495,12 +1493,12 @@ Bundled sample: classifications `base / page-object / page-object / test-class` 
 ### Re-run
 
 ```powershell
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
-Remove-Item -Recurse -Force E:\EB1A_Research\TestApp\selenium8-converted -ErrorAction SilentlyContinue
-node dist\cli.js convert E:\EB1A_Research\TestApp\selenium8\Data-Driven-Framework --out E:\EB1A_Research\TestApp\selenium8-converted
+Remove-Item -Recurse -Force <samples>\selenium8-converted -ErrorAction SilentlyContinue
+node dist\cli.js convert <samples>\selenium8\Data-Driven-Framework --out <samples>\selenium8-converted
 
-node -e "const r = require('E:/EB1A_Research/TestApp/selenium8-converted/conversion-result.json'); console.log(JSON.stringify(r.stats, null, 2))"
+node -e "const r = require('<samples>/selenium8-converted/conversion-result.json'); console.log(JSON.stringify(r.stats, null, 2))"
 ```
 
 The `stats` block should show `failed: 0, skipped: 0` (or close to it).
@@ -1573,13 +1571,13 @@ Bundled sample: still classified `base / page-object / page-object / test-class`
 ### Re-run
 
 ```powershell
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
-Remove-Item -Recurse -Force E:\EB1A_Research\TestApp\selenium8-converted -ErrorAction SilentlyContinue
-node dist\cli.js convert E:\EB1A_Research\TestApp\selenium8\Data-Driven-Framework --out E:\EB1A_Research\TestApp\selenium8-converted
+Remove-Item -Recurse -Force <samples>\selenium8-converted -ErrorAction SilentlyContinue
+node dist\cli.js convert <samples>\selenium8\Data-Driven-Framework --out <samples>\selenium8-converted
 
 :: Quick punch-list of what's still manual:
-node -e "const r = require('E:/EB1A_Research/TestApp/selenium8-converted/conversion-result.json'); r.files.filter(f=>f.severity!=='ok').forEach(f=>console.log('['+f.severity.padEnd(7)+'] '+f.status.padEnd(10)+' '+f.source+'\n           -> '+f.action))"
+node -e "const r = require('<samples>/selenium8-converted/conversion-result.json'); r.files.filter(f=>f.severity!=='ok').forEach(f=>console.log('['+f.severity.padEnd(7)+'] '+f.status.padEnd(10)+' '+f.source+'\n           -> '+f.action))"
 ```
 
 ---
@@ -1612,7 +1610,7 @@ Larger binary (~50–55 MB instead of ~45 MB on Brotli) but **runs every code pa
 ### Verification
 
 ```cmd
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm install -D @yao-pkg/pkg
 npm run build
 npm run build:exe
@@ -1807,7 +1805,7 @@ Sandbox verifier on the bundled Java/TestNG sample: still produces 3 TS files + 
 
 ```powershell
 foreach ($p in 'selenium1','selenium2','selenium3','selenium4','selenium5','selenium6','selenium7') {
-    node dist\cli.js convert "E:\EB1A_Research\TestApp\$p" --out "E:\EB1A_Research\TestApp\$p-converted" 2>&1 | Out-Null
+    node dist\cli.js convert "<samples>\$p" --out "<samples>\$p-converted" 2>&1 | Out-Null
 }
 node dist\cli.js report-patterns -n 30
 ```
@@ -1913,11 +1911,11 @@ Bundled sample's spec still has exactly one `test.beforeEach` block (verified) a
 ### Re-run
 
 ```powershell
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
-Remove-Item -Recurse -Force E:\EB1A_Research\TestApp\selenium5-converted -ErrorAction SilentlyContinue
-node dist\cli.js convert E:\EB1A_Research\TestApp\selenium5 --out E:\EB1A_Research\TestApp\selenium5-converted
-type E:\EB1A_Research\TestApp\selenium5-converted\tests\login.spec.ts
+Remove-Item -Recurse -Force <samples>\selenium5-converted -ErrorAction SilentlyContinue
+node dist\cli.js convert <samples>\selenium5 --out <samples>\selenium5-converted
+type <samples>\selenium5-converted\tests\login.spec.ts
 ```
 
 ---
@@ -2027,11 +2025,11 @@ Bundled sample's converted spec is unchanged (its tests already used class-field
 ### Re-run
 
 ```powershell
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
-Remove-Item -Recurse -Force E:\EB1A_Research\TestApp\selenium5-converted -ErrorAction SilentlyContinue
-node dist\cli.js convert E:\EB1A_Research\TestApp\selenium5 --out E:\EB1A_Research\TestApp\selenium5-converted
-type E:\EB1A_Research\TestApp\selenium5-converted\tests\login.spec.ts
+Remove-Item -Recurse -Force <samples>\selenium5-converted -ErrorAction SilentlyContinue
+node dist\cli.js convert <samples>\selenium5 --out <samples>\selenium5-converted
+type <samples>\selenium5-converted\tests\login.spec.ts
 ```
 
 ---
@@ -2067,11 +2065,11 @@ Bundled sample (`LoginPage` / `HomePage` / `LoginTest` — all singular): file n
 ### Re-run
 
 ```powershell
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
-Remove-Item -Recurse -Force E:\EB1A_Research\TestApp\selenium5-converted -ErrorAction SilentlyContinue
-node dist\cli.js convert E:\EB1A_Research\TestApp\selenium5 --out E:\EB1A_Research\TestApp\selenium5-converted
-type E:\EB1A_Research\TestApp\selenium5-converted\tests\login.spec.ts
+Remove-Item -Recurse -Force <samples>\selenium5-converted -ErrorAction SilentlyContinue
+node dist\cli.js convert <samples>\selenium5 --out <samples>\selenium5-converted
+type <samples>\selenium5-converted\tests\login.spec.ts
 ```
 
 Should now print the converted spec with the two `test(...)` blocks for `invalidLoginTest_InvalidUserNameInvalidPassword` and `invalidLoginTest_EmptyUserEmptyPassword`.
@@ -2123,11 +2121,11 @@ Bundled sample's `LoginTest.java` uses `@Test(description = "...")` (no space) �
 ### Re-run
 
 ```powershell
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
 
-Remove-Item -Recurse -Force E:\EB1A_Research\TestApp\selenium5-converted -ErrorAction SilentlyContinue
-node dist\cli.js convert E:\EB1A_Research\TestApp\selenium5 --out E:\EB1A_Research\TestApp\selenium5-converted
+Remove-Item -Recurse -Force <samples>\selenium5-converted -ErrorAction SilentlyContinue
+node dist\cli.js convert <samples>\selenium5 --out <samples>\selenium5-converted
 ```
 
 `Test methods converted` should jump from 0 to 2 (the `invalidLoginTest_InvalidUserNameInvalidPassword` and `invalidLoginTest_EmptyUserEmptyPassword` tests).
@@ -2206,7 +2204,7 @@ Sandbox verifier on the bundled sample: 4 files, classified as `base/page-object
 ### What to look for on re-run
 
 ```powershell
-node dist\cli.js convert E:\EB1A_Research\TestApp\selenium5 --out E:\EB1A_Research\TestApp\selenium5-converted
+node dist\cli.js convert <samples>\selenium5 --out <samples>\selenium5-converted
 ```
 
 `Test methods converted: 0` should jump to the actual count. The converted spec should have one `test(...)` block per Cucumber step.
@@ -2255,12 +2253,12 @@ Sandbox verifier on the bundled sample: still produces 3 TS files + 1 review ite
 ### Re-run sequence (PowerShell)
 
 ```powershell
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
 
 foreach ($p in 'selenium4','selenium5','selenium6','selenium7') {
-    $in  = "E:\EB1A_Research\TestApp\$p"
-    $out = "E:\EB1A_Research\TestApp\$p-converted"
+    $in  = "<samples>\$p"
+    $out = "<samples>\$p-converted"
     if (Test-Path $out) { Remove-Item -Recurse -Force $out }
     Write-Host ""
     Write-Host "=== $p ===" -ForegroundColor Cyan
@@ -2272,7 +2270,7 @@ foreach ($p in 'selenium4','selenium5','selenium6','selenium7') {
 }
 ```
 
-Then `node scripts\find-stub-callers.js E:\EB1A_Research\TestApp\selenium6-converted` to see the new stub graph for the busiest project.
+Then `node scripts\find-stub-callers.js <samples>\selenium6-converted` to see the new stub graph for the busiest project.
 
 ---
 
@@ -2373,13 +2371,13 @@ The Phase 7.0 `--lang csharp` polite-decline stub is gone — C# now actually co
 ### Re-run on the user's three test projects
 
 ```cmd
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
 
 :: selenium1/2/3 are all Java — auto-detect picks java-testng / java-bdd-cucumber as appropriate
 for %p in (selenium1 selenium2 selenium3) do (
-  rmdir /s /q E:\EB1A_Research\TestApp\%p-converted 2>nul
-  node dist\cli.js convert E:\EB1A_Research\TestApp\%p --out E:\EB1A_Research\TestApp\%p-converted
+  rmdir /s /q <samples>\%p-converted 2>nul
+  node dist\cli.js convert <samples>\%p --out <samples>\%p-converted
 )
 
 :: To use LLM fallback on remaining unknowns:
@@ -2437,13 +2435,13 @@ Bundled sample untouched — none of its 4 source files reference `DriverManager
 ### Re-run for the user
 
 ```cmd
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
 
-rmdir /s /q E:\EB1A_Research\TestApp\selenium3-converted
-node dist\cli.js convert E:\EB1A_Research\TestApp\selenium3 --out E:\EB1A_Research\TestApp\selenium3-converted
+rmdir /s /q <samples>\selenium3-converted
+node dist\cli.js convert <samples>\selenium3 --out <samples>\selenium3-converted
 
-node scripts\find-stub-callers.js E:\EB1A_Research\TestApp\selenium3-converted | more
+node scripts\find-stub-callers.js <samples>\selenium3-converted | more
 ```
 
 `DriverManager` should drop near the bottom of the output (most fully-replaced stubs first).
@@ -2459,13 +2457,13 @@ After 0.7.4's wider detection net, real codebases will produce more `tests/_lega
 `scripts/find-stub-callers.js` — pure Node (no deps), runs against the converted project directory:
 
 ```cmd
-node E:\EB1A_Research\Converter\scripts\find-stub-callers.js E:\EB1A_Research\TestApp\selenium3-converted
+node <repo>\scripts\find-stub-callers.js <samples>\selenium3-converted
 ```
 
 Or via the new npm script (run from the Converter repo):
 
 ```cmd
-npm run find-stubs -- E:\EB1A_Research\TestApp\selenium3-converted
+npm run find-stubs -- <samples>\selenium3-converted
 ```
 
 ### What it does
@@ -2503,13 +2501,13 @@ After the 0.7.4 patches land more stubs (15+ vs the current 6):
 
 ```cmd
 :: Re-convert with the wider detector
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
-rmdir /s /q E:\EB1A_Research\TestApp\selenium3-converted
-node dist\cli.js convert E:\EB1A_Research\TestApp\selenium3 --out E:\EB1A_Research\TestApp\selenium3-converted
+rmdir /s /q <samples>\selenium3-converted
+node dist\cli.js convert <samples>\selenium3 --out <samples>\selenium3-converted
 
 :: Print the porting checklist
-node scripts\find-stub-callers.js E:\EB1A_Research\TestApp\selenium3-converted > selenium3-porting.txt
+node scripts\find-stub-callers.js <samples>\selenium3-converted > selenium3-porting.txt
 
 :: Walk the checklist top-to-bottom; ditch zero-reference stubs first.
 ```
@@ -2565,13 +2563,13 @@ Bundled sample's 4 source files still classify as `base`/`page-object`/`page-obj
 ### Re-run for the user
 
 ```cmd
-cd E:\EB1A_Research\Converter
+cd <repo>
 npm run build
 
-cd E:\EB1A_Research\TestApp
+cd <samples>
 for %p in (selenium1 selenium2 selenium3) do (
   rmdir /s /q %p-converted 2>nul
-  node E:\EB1A_Research\Converter\dist\cli.js convert E:\EB1A_Research\TestApp\%p --out E:\EB1A_Research\TestApp\%p-converted
+  node <repo>\dist\cli.js convert <samples>\%p --out <samples>\%p-converted
   echo === %p ===
   findstr /N "###" %p-converted\CONVERSION_REVIEW.md
 )
@@ -2676,7 +2674,7 @@ Clean.
 ### Verification
 
 - Sandbox verifier confirms bundled sample's emitted output is unchanged (the strip rules don't fire when there's nothing to strip).
-- Re-running `node dist/cli.js convert E:\EB1A_Research\TestApp\selenium1 --out E:\EB1A_Research\TestApp\selenium1-converted` should now produce a `tests/free-crm.spec.ts` that parses.
+- Re-running `node dist/cli.js convert <samples>\selenium1 --out <samples>\selenium1-converted` should now produce a `tests/free-crm.spec.ts` that parses.
 - The freecrm test still won't run *successfully* — the URL points at an app that doesn't exist anymore — but that's a behavioural-parity question, not a conversion correctness one. The Playwright runner will load and report a clear navigation failure rather than a TS parse error.
 
 ### What this didn't fix (still possible to surface)

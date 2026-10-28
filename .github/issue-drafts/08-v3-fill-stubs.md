@@ -15,7 +15,7 @@ A new CLI subcommand `sel2pw fill-stubs` that runs **after** the deterministic c
 - LLM scope is bounded to one stub file per invocation — small inputs, small outputs, debuggable one at a time.
 - Review-first workflow. User reads `CONVERSION_REVIEW.md`, decides whether the stubs are worth filling, THEN opts in.
 - Auditable. Each filled file carries a header with provider, model, timestamp, input SHA, prompt SHA. If a suggestion is wrong, diff against the raw stub.
-- Addresses the recurring reviewer feedback that LLM-based migration drifts silently.
+- Addresses the common concern that LLM-based migration drifts silently.
 
 ### Proposed CLI shape
 
@@ -47,7 +47,7 @@ sel2pw fill-stubs ./pw --only booking-data-factory,configuration-manager
 
 - An empirical study of LLM-assisted migration completion with reproducible provenance.
 - Provider sensitivity measurements (Anthropic vs OpenAI vs Google) against the same 15-repo benchmark.
-- A credible answer to "what does the LLM path actually add?" — the question Elsevier SoftwareX peer-review and others have asked.
+- A credible answer to "what does the LLM path actually add?" — a question users keep asking.
 
 ## Discussion needed before implementation
 

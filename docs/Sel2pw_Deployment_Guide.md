@@ -297,7 +297,7 @@ Same pattern as `test-prioritization-service`. Two options:
 ### 8.1 Revert on GitHub (preferred)
 
 ```bash
-cd E:\EB1A_Research\Converter
+cd <repo>
 git revert <bad-commit-sha>
 git push origin main
 ```

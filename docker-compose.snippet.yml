@@ -10,7 +10,7 @@
 services:
   converter:
     build:
-      context: ../../EB1A_Research/Converter      # adjust to your monorepo layout
+      context: ../sel2pw      # adjust to your monorepo layout
       dockerfile: Dockerfile
     container_name: sel2pw-converter
     image: platform/sel2pw:dev
@@ -30,7 +30,7 @@ services:
 
   ai-governance-sidecar:
     build:
-      context: ../../EB1A_Research/ai-governance
+      context: ../ai-governance
       dockerfile: service/Dockerfile
     container_name: ai-governance-sidecar
     image: platform/ai-governance-sidecar:dev

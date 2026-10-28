@@ -26,7 +26,7 @@ Be careful not to rewrite the Pandoc-style `->` arrows in comments or string lit
 
 **Impact**
 
-Observed on the saucelabs-training/demo-java/selenium-junit5-examples validation module during JOSS pre-submission scoping. Closes approximately 25 TypeScript errors on that single module.
+Observed on the saucelabs-training/demo-java/selenium-junit5-examples validation module. Closes approximately 25 TypeScript errors on that single module.
 
 **Related**
 

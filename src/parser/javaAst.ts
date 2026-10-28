@@ -39,8 +39,8 @@ type JavaParserModule = {
 let cachedParser: JavaParserModule | null = null;
 let parserMissing = false;
 
-// v2.0.10 — per-run counters for the AST-vs-regex fallback rate. Addressed
-// JOSS reviewer 1 feedback that the hybrid parser behaviour was not quantified.
+// v2.0.10 — per-run counters for the AST-vs-regex fallback rate, so the
+// hybrid parser behaviour is measured rather than assumed.
 // Reset by `resetParserStats()` at the start of each `convert()` call; snapshot
 // via `getParserStats()` for inclusion in conversion-result.json.
 export interface ParserStats {

@@ -1,6 +1,6 @@
 # sel2pw C# NUnit → Playwright TypeScript — experimental conversion artifact
 
-This folder is the **C# path evidence** for the sel2pw JOSS paper. It documents what the experimental C# front-end produces today, honestly and with numbers, so a reader can judge the current scope of C# support.
+This folder is the **C# path evidence** for sel2pw. It documents what the experimental C# front-end produces today, honestly and with numbers, so a reader can judge the current scope of C# support.
 
 **Source:** `examples/csharp-nunit-target/` — a purpose-built minimal Selenium + NUnit source. Two Page Objects (`LoginPage`, `InventoryPage`), one TestFixture with two tests (positive and negative login). Targets `https://www.saucedemo.com`. Pattern mirrors the Java TestNG `functional-equivalence-target/` so both front-ends can be compared directly.
 
@@ -37,7 +37,7 @@ The C# front-end emits a plausible-looking Playwright scaffold but does not curr
 
 Each of these is a one- or two-line addition to a transformer file. None is architectural. The reason they are not implemented is empirical: the public C# + NUnit + Selenium corpus is small compared to the Java + TestNG + Selenium corpus, and the maintainer has prioritised Java first. The limitation is scope, not design.
 
-## Position in the paper
+## How this fits with the Java evidence
 
 This artifact is the honest companion to the Java functional-equivalence artifact (`examples/functional-equivalence-output/`, 2/2 passing). The two together establish the current state:
 
