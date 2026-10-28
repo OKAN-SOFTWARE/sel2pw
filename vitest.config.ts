@@ -18,5 +18,9 @@ export default defineConfig({
       // `continue-on-error: true` so a failure here doesn't block CI.
     },
     testTimeout: 15_000,
+    // beforeAll hooks run a full convert() on a sample project. On a cold
+    // Windows start (java-parser load, antivirus scanning temp dirs) that can
+    // exceed the 10 s default, so give hooks more room than single tests.
+    hookTimeout: 60_000,
   },
 });
