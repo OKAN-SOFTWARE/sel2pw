@@ -4,6 +4,14 @@ All notable changes to `sel2pw` (the Converter). Format follows [Keep a Changelo
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- **Stray closing brace in `tests/fixtures.ts`.** A `BaseTest` teardown written as `if (driver != null) { driver.quit(); }` left an orphan `}` in the generated fixture, so the output did not compile. The whole null-guarded block is now removed, in both `baseTestExtractor.ts` and `bodyTransformer.ts`, with unit tests. Fixes #14. Thanks to @bfs2021 for the first community contribution ([#26](https://github.com/javvadivijayprasad/sel2pw/pull/26)).
+
+---
+
 ## [2.0.10] — AST fallback telemetry + C# empirical artifact + per-repo SHA table
 
 All changes are additive; no runtime behaviour changes for existing users.

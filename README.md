@@ -82,7 +82,7 @@ npm install && npx playwright install chromium
 npx playwright test --project=chromium
 ```
 
-The first run will stop on a compile error in `tests/fixtures.ts`: a stray `}` left behind when sel2pw removes `driver.quit()`. That's a known bug and an open [good first issue (#14)](https://github.com/javvadivijayprasad/sel2pw/issues/14). Delete the extra brace, and see `MANUAL_EDITS.md` for the second edit.
+With the published v2.0.10, the first run stops on a compile error in `tests/fixtures.ts`: a stray `}` left behind when sel2pw removes `driver.quit()`. This is fixed on `main` ([#26](https://github.com/javvadivijayprasad/sel2pw/pull/26)) and will ship in the next release; until then, delete the extra brace. The second edit, adding `.first()` to one locator, is described in `MANUAL_EDITS.md`.
 
 > **Status — v2.0.x:** Validated against **15 real-world OSS Selenium codebases** (409 Java files; see [STATUS.md](./STATUS.md) for the per-repository matrix): no crashes, every file classified. Ships as an npm package (`@vijaypjavvadi/sel2pw`) and a standalone Windows `.exe`. Frontends: Selenium Java + TestNG/JUnit and Java + Cucumber BDD use the `java-parser` AST extractor with a per-file regex fallback; Selenium C# + NUnit/SpecFlow use a regex/balanced-brace extractor (experimental, validated on a small corpus only). Optional LLM fallback for constructs the rule catalogue does not cover (Anthropic / OpenAI / Gemini; off by default; `ai-governance` sanitisation before any model call). See [CHANGELOG.md](./CHANGELOG.md) for the full version history.
 

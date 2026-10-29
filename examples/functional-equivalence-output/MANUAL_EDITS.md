@@ -22,7 +22,9 @@ Marked in-source with a `[MANUAL EDIT #N]` comment so a reader can diff against 
 
 ### Edit #1 — `tests/fixtures.ts` (1 stray brace deleted)
 
-sel2pw's `baseTestExtractor` strips `driver.quit()` from `BaseTest`'s `@AfterMethod` (correctly — Playwright's fixture handles browser lifecycle). However, the surrounding `if (driver != null) { driver.quit(); }` block's closing brace slipped through, ending up in the emitted `fixtures.ts` as a syntactically invalid dangling `}`. Hand-deleted. This is a genuine sel2pw bug found during the functional-equivalence evaluation; a one-line patch in `stripJavaDriverBoilerplate` (`src/transformers/bodyTransformer.ts`) is planned for v2.0.9.
+sel2pw's `baseTestExtractor` strips `driver.quit()` from `BaseTest`'s `@AfterMethod` (correctly — Playwright's fixture handles browser lifecycle). However, the surrounding `if (driver != null) { driver.quit(); }` block's closing brace slipped through, ending up in the emitted `fixtures.ts` as a syntactically invalid dangling `}`. Hand-deleted. This is a genuine sel2pw bug found during the functional-equivalence evaluation.
+
+**Update:** fixed on `main` by [#26](https://github.com/javvadivijayprasad/sel2pw/pull/26) (thanks @bfs2021), which removes the whole null-guarded block. From the next release this edit is no longer needed; the output in this folder was produced by v2.0.8 and is kept as-is for reproducibility.
 
 ### Edit #2 — `pages/inventory.page.ts` (1 `.first()` appended to a locator)
 
