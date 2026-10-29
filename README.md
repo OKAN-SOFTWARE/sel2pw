@@ -14,7 +14,7 @@
 
 Most teams are migrating off `selenium-java + TestNG` (and their BDD/Cucumber and C#/SpecFlow cousins) onto Playwright. The painful part isn't writing new tests — it's the *thousands of existing ones* you can't afford to throw away.
 
-`sel2pw` is a CLI **and a platform service** that takes a Java/Selenium/TestNG project and emits an equivalent Playwright TypeScript project, plus a markdown review report listing everything a human still needs to look at.
+`sel2pw` is a command-line tool that takes a Java/Selenium/TestNG project and writes a Playwright TypeScript project, plus a review report listing everything a person still needs to look at. You don't need Java installed, only Node.js.
 
 > ## What sel2pw is and isn't
 >
@@ -28,19 +28,61 @@ Most teams are migrating off `selenium-java + TestNG` (and their BDD/Cucumber an
 >
 > **What the numbers mean.** On the 15-repository benchmark (409 Java files, LLM fallback off), 150 files (36.7%) converted with no stubs, 152 (37.2%) contain stubs with migration recipes, 96 (23.5%) need mixed cleanup and 11 (2.7%) were skipped as data-only classes. "0 failed conversions" means no crashes and no missing outputs — every file produced either a scaffold or an explicit skip record — not that the output compiles or is behaviourally equivalent. sel2pw removes the mechanical part of a migration (locators, assertions, lifecycle, file layout); the remaining human effort has not been measured against a manual-migration baseline, so no time-saving multiple is claimed.
 
-## Where this fits in the platform
+## Quick start
 
-`sel2pw` is the **Migrate** stage of the modern automation platform, alongside three sibling services:
+**You need:** Node.js 18 or newer. Check with `node --version`.
 
-| Stage | Service | What it does |
-| --- | --- | --- |
-| 1. Generate | `test-case-generation-service` (FastAPI, port 4100) | Author new tests from requirements |
-| 2. **Migrate** | **`sel2pw` / Converter (this repo, port 4200)** | Lift legacy Selenium suites to Playwright |
-| 3. Stabilise | `self-healing-stage-services` (FastAPI, port 8003) | Heal broken locators at runtime |
-| 4. Govern | `ai-governance` (Python lib + sidecar) | Sanitise every payload before any LLM call |
-| Orchestrate | `modern-automation-platform` (Express gateway, port 3000) | Auth, jobs, UI, artifact storage |
+Convert a project in one command. Point it at the root of your Selenium project, or at its `src/test/java` folder:
 
-Everything is reachable through the platform gateway at `/api/v1/converter/*`, with the same auth, governance config, and provenance shape as the other services. See [INTEGRATION.md](./INTEGRATION.md) for the API contract, gateway wiring, and cross-service flows.
+```bash
+npx @vijaypjavvadi/sel2pw convert ./my-selenium-project --out ./my-playwright-project
+```
+
+Or install it once and use the short `sel2pw` command:
+
+```bash
+npm install -g @vijaypjavvadi/sel2pw
+sel2pw convert ./my-selenium-project --out ./my-playwright-project
+```
+
+Want to see what would happen first? Add `--dry-run` to print the plan without writing any files, or run `sel2pw analyze ./my-selenium-project` for a summary.
+
+### Run the converted project
+
+```bash
+cd my-playwright-project
+npm install                 # installs @playwright/test and TypeScript
+npx playwright install      # downloads the browsers (first time only)
+npx tsc --noEmit            # the error count = how much cleanup is left
+npx playwright test         # run the tests
+npx playwright show-report  # open the HTML report
+```
+
+Then open these files in the output folder:
+
+- `CONVERSION_REVIEW.md`: the to-do list, one line per item a person needs to check
+- `FILE_MAPPING.md`: which Java file became which TypeScript file, and what was stubbed or skipped
+- `MIGRATION_NOTES.md`: project-wide notes (config, fixtures, environment variables)
+
+### Try it on a sample project
+
+The repository includes two small Selenium projects you can convert in a minute:
+
+| Sample | What it shows |
+| --- | --- |
+| `examples/selenium-testng-sample/` | A minimal TestNG suite with two page objects. Good for seeing what the output looks like. |
+| `examples/functional-equivalence-target/` | A Selenium + TestNG login suite against the public demo site [saucedemo.com](https://www.saucedemo.com). The converted tests pass against the live site after two small hand edits, documented in [`examples/functional-equivalence-output/MANUAL_EDITS.md`](./examples/functional-equivalence-output/MANUAL_EDITS.md). |
+
+```bash
+git clone https://github.com/javvadivijayprasad/sel2pw.git
+cd sel2pw
+npx @vijaypjavvadi/sel2pw convert examples/functional-equivalence-target --out ./saucedemo-pw
+cd saucedemo-pw
+npm install && npx playwright install chromium
+npx playwright test --project=chromium
+```
+
+The first run will stop on a compile error in `tests/fixtures.ts`: a stray `}` left behind when sel2pw removes `driver.quit()`. That's a known bug and an open [good first issue (#14)](https://github.com/javvadivijayprasad/sel2pw/issues/14). Delete the extra brace, and see `MANUAL_EDITS.md` for the second edit.
 
 > **Status — v2.0.x:** Validated against **15 real-world OSS Selenium codebases** (409 Java files; see [STATUS.md](./STATUS.md) for the per-repository matrix): no crashes, every file classified. Ships as an npm package (`@vijaypjavvadi/sel2pw`) and a standalone Windows `.exe`. Frontends: Selenium Java + TestNG/JUnit and Java + Cucumber BDD use the `java-parser` AST extractor with a per-file regex fallback; Selenium C# + NUnit/SpecFlow use a regex/balanced-brace extractor (experimental, validated on a small corpus only). Optional LLM fallback for constructs the rule catalogue does not cover (Anthropic / OpenAI / Gemini; off by default; `ai-governance` sanitisation before any model call). See [CHANGELOG.md](./CHANGELOG.md) for the full version history.
 
@@ -216,86 +258,84 @@ output/
   CONVERSION_REVIEW.md   ← every warning + manual TODO
 ```
 
-## Install & run
-
-```bash
-npm install
-npm run build
-
-# convert
-node dist/cli.js convert <input-java-project> --out <output-playwright-project>
-
-# or dry-run analysis (no writes)
-node dist/cli.js analyze <input-java-project>
-
-# end-to-end demo on the bundled sample
-npm run convert:sample
-```
-
-CLI commands:
+## CLI reference
 
 ```
-sel2pw convert <inputDir> --out <outputDir> [--templates <dir>] [--dry-run]
+sel2pw convert <inputDir> --out <outputDir> [options]
 sel2pw analyze <inputDir>
 ```
 
-Programmatic API:
+Most useful `convert` options:
+
+| Option | What it does |
+| --- | --- |
+| `--dry-run` | Print the plan without writing files |
+| `--diff` | Like `--dry-run`, but show diffs against an existing output folder |
+| `--validate` | Run `tsc --noEmit` on the output and add the errors to the review report |
+| `--format` | Run Prettier over the generated TypeScript |
+| `--lang java\|csharp` | Force the source language (auto-detected by default) |
+| `--bdd-mode preserve\|flatten` | Cucumber: keep `.feature` files with a playwright-bdd skeleton (default), or turn each scenario into a plain `test()` |
+| `--pom-style instance\|factory` | Page objects as classes you create in each test (default) or as a fixture |
+| `--no-todo-markers` | Don't add `// TODO(sel2pw):` comments to the output |
+| `--llm-fallback` | Off by default. Sends constructs no rule covers to an LLM (`--llm-provider anthropic\|openai\|gemini`). Leave it off if your test code must not leave your machine. |
+
+Run `sel2pw convert --help` for the full list.
+
+### Programmatic API
 
 ```ts
-import { convert } from "sel2pw";
+import { convert } from "@vijaypjavvadi/sel2pw";
+
 await convert({
   inputDir: "./my-selenium-project",
   outputDir: "./my-playwright-project",
 });
 ```
 
+### Running as a service (optional)
+
+sel2pw can also run as an HTTP service (port 4200) inside a larger test-automation platform. Most users don't need this. See [INTEGRATION.md](./INTEGRATION.md) and the [deployment guide](./docs/Sel2pw_Deployment_Guide.md).
+
 ## Architecture
 
 ```
 src/
-├── cli.ts                    # commander CLI entry
-├── index.ts                  # public convert() / analyze() API
-├── types.ts                  # IR — JavaFile, PageObjectIR, TestClassIR, ReviewItem, etc.
-├── scanner/projectScanner.ts # walk + classify .java files
-├── parser/javaExtractor.ts   # extract IR from raw Java (regex + balanced braces)
-├── transformers/
-│   ├── locatorMapper.ts      # By.* → page.locator/getByRole
-│   ├── apiMap.ts             # WebDriver/WebElement → Playwright async
-│   ├── assertionMap.ts       # TestNG Assert → expect()
-│   └── bodyTransformer.ts    # orchestrates per-method-body rewrites + warnings
-├── emitters/
-│   ├── pageObjectEmitter.ts  # POM IR → TS class
-│   ├── testClassEmitter.ts   # TestClass IR → spec file
-│   └── projectEmitter.ts     # writes templates + converted files
-├── reports/reviewReport.ts   # CONVERSION_REVIEW.md
-└── utils/naming.ts           # PascalCase / kebab-case / Java→TS type mapping
+├── cli.ts              # command-line entry point
+├── index.ts            # public convert() / analyze() API
+├── types.ts            # intermediate representation (IR) shared by all stages
+├── scanner/            # walk the input folder, classify each file, detect the stack
+├── parser/             # javaAst.ts (main Java parser), javaExtractor.ts (fallback),
+│                       # csharpExtractor.ts (experimental), featureParser.ts (Cucumber)
+├── transformers/       # the rewrite rules: apiMap, advancedApiMap, assertionMap,
+│                       # hamcrestMap, javaIdiomMap, locatorMapper, bodyTransformer, ...
+├── emitters/           # write page objects, specs, fixtures, enums, errors, stubs
+├── reports/            # CONVERSION_REVIEW.md, FILE_MAPPING.md, MIGRATION_NOTES.md, JSON
+├── post/               # optional passes: tsc / ESLint validation, Prettier, LLM fallback
+├── server/ + server.ts # optional HTTP service
+└── stretch/            # experimental features (BDD flattening, parity checks, C# design)
 
-templates/                    # scaffolded into the output project
-├── package.json.tmpl
-├── playwright.config.ts.tmpl
-├── tsconfig.json.tmpl
-└── gitignore.tmpl
-
-examples/selenium-testng-sample/   # input fixture for the demo
-└── src/test/java/com/example/...
+templates/              # package.json, playwright.config.ts, tsconfig.json for the output
+examples/               # sample input projects and their converted output
+tests/                  # unit, snapshot and real-world fixture tests (Vitest)
 ```
 
 The IR boundary is deliberately clean. For Java, `parser/javaAst.ts` (a `java-parser`/Chevrotain CST walker) is the canonical extractor; `parser/javaExtractor.ts` is a regex+balanced-brace extractor used as a per-file fallback when the AST parse throws or `java-parser` is unavailable, and the run log records each fallback. For C#, `parser/csharpExtractor.ts` is regex+balanced-brace only — there is no C# AST parser yet, so C# support should be read as experimental.
 
-## What's not yet handled (flagged in `CONVERSION_REVIEW.md`)
+## Known limitations
 
-- **`@DataProvider` parameterisation** — emitted as a warning; convert manually to a `for (const row of rows()) { test(...) }` loop.
-- **`BaseTest` superclass lifecycle** — flagged; port shared setup into a [Playwright fixture](https://playwright.dev/docs/test-fixtures) in `tests/fixtures.ts`.
-- **`Actions` chains** — `Actions(driver).moveToElement(el).click().perform()` → `await locator.hover()` + `.click()` (semantics differ; review).
-- **`JavascriptExecutor.executeScript(...)`** — flagged; convert to `await page.evaluate(() => ...)`.
-- **iframe `switchTo().frame(...)`** — flagged; use `page.frameLocator(...)`.
-- **Alert handling** — flagged; use `page.on('dialog', d => d.accept())`.
-- **Cucumber `.feature` + step defs** — not in MVP. Roadmap below.
-- **C# / SpecFlow** — regex-based extractor only (no AST); handles conventional NUnit/SpecFlow shapes, validated on a small corpus. Treat as experimental.
+Everything below is flagged in `CONVERSION_REVIEW.md` when it shows up in your code.
+
+- **Locators that match several elements.** Selenium's `findElement` quietly uses the first match; Playwright fails in strict mode. You may need to add `.first()` by hand ([#15](https://github.com/javvadivijayprasad/sel2pw/issues/15)).
+- **Newer Java syntax** such as lambdas (`x -> ...`), method references (`::`), casts and try-with-resources is not rewritten yet, so it shows up as TypeScript compile errors ([#20](https://github.com/javvadivijayprasad/sel2pw/issues/20)).
+- **`@DataProvider`** becomes a test with a `TODO(sel2pw)` comment pointing at Playwright's [parameterised-test pattern](https://playwright.dev/docs/test-parameterize). Finish the loop by hand.
+- **`@Test(groups=...)`** becomes a comment; add Playwright [tags](https://playwright.dev/docs/test-annotations#tag-tests) by hand.
+- **iframes** (`switchTo().frame(...)`) become comments suggesting `page.frameLocator(...)`; scope the following locators by hand.
+- **Helper classes with no Playwright equivalent** (Excel readers, report managers, retry analyzers, listeners) become typed stubs in `tests/_legacy-stubs/`. Each call throws until you replace it.
+- **C# / NUnit / SpecFlow** support is experimental: the project structure is produced, but many C# idioms are not rewritten yet ([#19](https://github.com/javvadivijayprasad/sel2pw/issues/19)).
 
 ## Roadmap
 
-The full punch list lives in [PRODUCTION_TASKS.md](./PRODUCTION_TASKS.md). Headline:
+Open work is tracked in [GitHub issues](https://github.com/javvadivijayprasad/sel2pw/issues); the older punch list lives in [PRODUCTION_TASKS.md](./PRODUCTION_TASKS.md). Completed phases:
 
 | Phase | Status | Headline |
 | --- | --- | --- |
@@ -306,18 +346,27 @@ The full punch list lives in [PRODUCTION_TASKS.md](./PRODUCTION_TASKS.md). Headl
 | 4 — Distribution | ✅ Complete | LICENSE, CI matrix, release workflow, Dependabot, typedoc, Changesets, CONTRIBUTING |
 | 5 — Stretch | ✅ Scaffolds | Cucumber BDD, **auto-fix loop**, hybrid AST+LLM, behaviour-parity verifier, C#/SpecFlow design |
 
-## Development
+## Contributing
+
+Contributions are welcome, including first-timers. Issues labelled [good first issue](https://github.com/javvadivijayprasad/sel2pw/labels/good%20first%20issue) come with the files to look at and a "done when" checklist. Comment on one to claim it.
 
 ```bash
+git clone https://github.com/javvadivijayprasad/sel2pw.git
+cd sel2pw
 npm install
-npm run dev -- convert ./examples/selenium-testng-sample --out ./examples/output-playwright
-npm test
+npm run build
+npm test                 # unit + snapshot tests
+npm run lint             # ESLint + tsc
+npm run convert:sample   # convert the bundled sample into examples/output-playwright/
 ```
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for how the pipeline is organised and how to add a new rule.
+
 ## Citation
 
 If you use `@vijaypjavvadi/sel2pw` in academic work, please cite:
 
-> Javvadi, V. P. (2026). *@vijaypjavvadi/sel2pw: A Deterministic, Rule-Based Migration Toolkit from Selenium Test Suites to Playwright TypeScript Scaffolds* (Version 2.0.8) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.22819244 (concept DOI, all versions: https://doi.org/10.5281/zenodo.20450292)
+> Javvadi, V. P. (2026). *@vijaypjavvadi/sel2pw: A Deterministic, Rule-Based Migration Toolkit from Selenium Test Suites to Playwright TypeScript Scaffolds* (Version 2.0.10) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.23437407 (concept DOI, all versions: https://doi.org/10.5281/zenodo.20450292)
 
 A machine-readable [`CITATION.cff`](CITATION.cff) file is included in the repository root.
 
