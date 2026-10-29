@@ -1,28 +1,33 @@
 ---
-title: "docs: fill the README migration-patterns table with 10 concrete before/after code blocks"
+title: "docs: add before/after code examples to the README's \"What it converts\" section"
 labels: ["documentation", "good first issue"]
 ---
 
-The README's "What it converts" section (10 subsections, ~90 mappings) currently shows input → output in a terse table form. For engineers reading it to decide whether to try sel2pw, a short concrete code snippet pair for each top-N pattern would be more persuasive than the table alone.
+**Why**
 
-**Pick any 10 of these and add a code-block pair for each:**
+The README's "What it converts" section lists about 90 mappings in tables. People deciding whether to try sel2pw find a short Java → TypeScript example much easier to read than a table row.
+
+**What to do**
+
+Pick **5 to 10** of the patterns below. For each one, add a small Java block and the matching TypeScript block under the right heading in `README.md`.
 
 1. `driver.get(url)` → `await page.goto(url)`
-2. `@FindBy(id = "x") WebElement el;` → `readonly el: Locator = page.locator('#x');`
-3. `new WebDriverWait(driver, 10).until(ExpectedConditions.visibilityOf(el))` → `await el.waitFor({ state: 'visible' })` (then note it's usually unnecessary)
-4. `assertThat(items, hasItem("Home"))` _(Hamcrest)_ → `expect(items).toContain('Home')`
-5. `assertThat(actual).isEqualTo(x).isNotNull()` _(AssertJ)_ → `expect(actual).toBe(x); expect(actual).not.toBeNull();`
-6. `new Actions(driver).moveToElement(el).click().perform()` → `await el.hover(); await el.click();`
-7. `new Select(dropdown).selectByVisibleText("EN")` → `await dropdown.selectOption({ label: 'EN' });`
-8. `@BeforeMethod` + `@AfterMethod` → `test.beforeEach(...)` + `test.afterEach(...)`
-9. `@Test(dataProvider = "rows")` + provider method → parameterised test loop pattern
-10. `((JavascriptExecutor)driver).executeScript(js)` → `await page.evaluate(() => { ... })`
+2. `@FindBy(id = "x") WebElement el;` → a `Locator` field built in the constructor
+3. `new WebDriverWait(driver, 10).until(...)` → removed, because Playwright waits automatically
+4. `assertThat(items, hasItem("Home"))` (Hamcrest) → `expect(items).toContain("Home")`
+5. `new Actions(driver).moveToElement(el).perform()` → `await el.hover()`
+6. `new Select(dropdown).selectByVisibleText("EN")` → `await dropdown.selectOption({ label: "EN" })`
+7. `@BeforeMethod` / `@AfterMethod` → `test.beforeEach` / `test.afterEach`
+8. `((JavascriptExecutor) driver).executeScript(js)` → `await page.evaluate(...)`
 
-**Format for each entry**
+**Tip:** don't guess the output. Put the Java snippet in a small file inside `examples/selenium-testng-sample/`, run `npm run convert:sample`, and copy what sel2pw actually produces from `examples/output-playwright/`. That way the README shows real behaviour.
 
-~2 lines Java, ~2 lines TypeScript, placed inline under the corresponding subsection in `README.md`.
+**Done when**
 
-**Acceptance**
+- [ ] At least 5 Java/TypeScript pairs are added under the existing headings.
+- [ ] Each TypeScript block matches what the tool really emits.
+- [ ] No existing text is removed.
 
-- 10 code-block pairs added to README.md under the existing category headings.
-- No existing text removed; this is additive.
+---
+
+**New here?** Comment on this issue to claim it, and we'll assign it to you. Setup takes about five minutes: see [CONTRIBUTING.md](https://github.com/javvadivijayprasad/sel2pw/blob/main/CONTRIBUTING.md). Questions are welcome in the comments, and no question is too small.

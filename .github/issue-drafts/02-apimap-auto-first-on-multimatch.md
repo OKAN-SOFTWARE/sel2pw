@@ -1,6 +1,6 @@
 ---
 title: "feat(apiMap): auto-add .first() when .isDisplayed()/.isVisible() is called on a multi-match locator"
-labels: ["enhancement", "good first issue"]
+labels: ["enhancement", "help wanted"]
 ---
 
 Selenium's `findElement(By.css(".inventory_item"))` silently returns the first match. Playwright's `page.locator(".inventory_item")` matches ALL elements and `.isVisible()` on an ambiguous locator throws a strict-mode violation at runtime. This is a documented fundamental semantic gap between the two frameworks.

@@ -1,35 +1,26 @@
 ---
-title: "docs: add 'Your first contribution' section to CONTRIBUTING.md"
+title: "docs: add a \"Your first contribution\" section to CONTRIBUTING.md"
 labels: ["documentation", "good first issue"]
 ---
 
-The current `CONTRIBUTING.md` covers the local dev workflow (`npm install`, `npm run build`, `npm test`, `npm run convert:sample`). That's useful for someone who's already decided to contribute, but it doesn't help a newcomer who clicked "good first issue" and is looking for an on-ramp.
+**Why**
 
-**Proposed addition**
+`CONTRIBUTING.md` explains the dev workflow, but someone who has never contributed to open source needs a gentler starting point. This issue is a good way to learn the project yourself while making it easier for the next person.
 
-A new section titled **"Your first contribution"** at the TOP of CONTRIBUTING.md (above the current content), covering:
+**What to do**
 
-1. **How to pick an issue** — point at the `good first issue` label on the issue tracker; mention that any issue without "roadmap" or "discussion" labels is actively claimable.
+Add a short section called **"Your first contribution"** near the top of `CONTRIBUTING.md` that covers:
 
-2. **How to run the test suite locally** — minimum commands needed to go from fresh clone to a green `npm test`.
+1. **Picking an issue.** Look for the `good first issue` label, and comment on the issue to claim it.
+2. **Getting set up.** Fork, clone, `npm install`, `npm run build`, `npm test`. Write down anything that confused you while doing this yourself; that is exactly what the section should explain.
+3. **Adding a conversion rule.** Rules live in `src/transformers/` (for example `apiMap.ts`). Tests live in `tests/transformers/`. Run `npm run convert:sample` to see the effect on the bundled sample.
+4. **Before opening a pull request.** `npm test` and `npm run lint` pass, and there's a line in `CHANGELOG.md` under "Unreleased".
 
-3. **How to add a transformer rule with its fixture** — the one-paragraph how-to:
-   - Add the input Java in a new fixture under `tests/fixtures/`
-   - Add the expected TS output alongside
-   - Add the rule to `src/transformers/<appropriate>.ts`
-   - Run `npm test -- -u` to snapshot
-   - Verify the full benchmark via `node dist/cli.js convert examples/validation-batch-v2/sources/<any> --out /tmp/check` doesn't regress
+**Done when**
 
-4. **What reviewers will look for** — a short checklist:
-   - Rule traced to at least one real repo failing in a specific way (not synthetic)
-   - Fixture + unit test
-   - CHANGELOG entry under the next unreleased version
-   - `npm run lint` and `tsc --noEmit` clean
+- [ ] The new section is under 50 lines and sits near the top of `CONTRIBUTING.md`.
+- [ ] Every command in it has been run on a fresh clone and works.
 
-**Length**
+---
 
-Target under 50 added lines. Should feel like a quick-start, not a wall of text.
-
-**Why it matters**
-
-Lowers the activation energy for first-time contributors. Makes it clear how anyone can contribute.
+**New here?** Comment on this issue to claim it, and we'll assign it to you. Setup takes about five minutes: see [CONTRIBUTING.md](https://github.com/javvadivijayprasad/sel2pw/blob/main/CONTRIBUTING.md). Questions are welcome in the comments, and no question is too small.

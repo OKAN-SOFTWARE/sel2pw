@@ -1,28 +1,28 @@
 ---
-title: "chore(ci): add CodeQL + Snyk security scanning workflow"
+title: "ci: add a CodeQL security-scanning workflow"
 labels: ["infrastructure", "security", "good first issue"]
 ---
 
-`.github/workflows/` currently has `ci.yml` (test matrix) and `release.yml` (publish). We should add a `security.yml` workflow that runs on every PR and on a weekly schedule.
+**Why**
 
-**Scope**
+The repo runs tests in `.github/workflows/ci.yml` but has no security scanning. GitHub's CodeQL is free for public repositories and finds common bugs and security problems in TypeScript.
 
-Two scanners, both free for public open-source repositories:
+**What to do**
 
-1. **GitHub CodeQL** — official GitHub static analysis. Catches a wide class of correctness and security defects in TypeScript. Zero config beyond adding the workflow.
-2. **Snyk Open Source** (free tier) — dependency vulnerability scan. Flags known CVEs in direct and transitive dependencies.
+Add `.github/workflows/codeql.yml`. GitHub has a ready-made template: open the repo's **Security** tab, choose **Code scanning → Set up → Advanced**, and you get a starter file you can copy.
 
-**Deliverable**
+The workflow should:
 
-A new `.github/workflows/security.yml` with two jobs: `codeql` and `snyk-oss`. Both report to the Security tab, both run on `pull_request`, `push` to `main`, and a weekly `schedule`.
+- run on `push` to `main`, on every `pull_request`, and once a week (`schedule`)
+- scan the `javascript-typescript` language
 
-**Starter template**
+**Done when**
 
-GitHub's own CodeQL template is a 15-line YAML. The Snyk Action has a ready-made example at `snyk/actions/node` on the marketplace.
+- [ ] `.github/workflows/codeql.yml` exists and its run is green on your pull request.
+- [ ] The README's "Development" section has one line saying that CodeQL runs on every PR.
 
-**Acceptance**
+Dependency scanning (Snyk or similar) can be a separate follow-up issue. Please keep this one to CodeQL only.
 
-- `.github/workflows/security.yml` exists and runs successfully on main
-- Security tab shows CodeQL results
-- Snyk badge in README (optional)
-- README's "Development" section documents how to run the scans locally
+---
+
+**New here?** Comment on this issue to claim it, and we'll assign it to you. Setup takes about five minutes: see [CONTRIBUTING.md](https://github.com/javvadivijayprasad/sel2pw/blob/main/CONTRIBUTING.md). Questions are welcome in the comments, and no question is too small.

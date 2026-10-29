@@ -9,7 +9,7 @@ This folder holds pre-written issue bodies for the sel2pw issue tracker. They ar
 | # | File | Scope |
 |---|---|---|
 | 1 | `01-fix-fixtures-stray-brace.md` | Bug: dangling `}` from stripped `if (driver != null) driver.quit();` |
-| 2 | `02-apimap-auto-first-on-multimatch.md` | Enhancement: auto-add `.first()` on multi-match locators used in `.isVisible()` |
+| 2 | `02-apimap-auto-first-on-multimatch.md` | Enhancement (help wanted): auto-add `.first()` on multi-match locators used in `.isVisible()` |
 | 3 | `03-docs-readme-before-after-blocks.md` | Docs: 10 concrete Java-to-TS code-block pairs in the README |
 | 4 | `04-cli-dry-run-json.md` | Enhancement: `--dry-run --format=json` for CI integration |
 | 5 | `05-test-bdd-cucumber-fixture.md` | Testing: larger Cucumber BDD regression fixture |
@@ -18,7 +18,7 @@ This folder holds pre-written issue bodies for the sel2pw issue tracker. They ar
 | 8 | `08-v3-fill-stubs.md` | Roadmap: v3.0 LLM `fill-stubs` subcommand (design discussion) |
 | 9 | `09-research-manual-audit.md` | Research: independent 20-file sample audit of outcome classifications |
 | 10 | `10-docs-migration-case-studies.md` | Docs: three real-repo migration case studies for the playbook |
-| 11 | `11-ci-security-scanning.md` | Infrastructure: CodeQL + Snyk security workflow |
+| 11 | `11-ci-security-scanning.md` | Infrastructure: CodeQL security workflow |
 | 12 | `12-contributing-first-timer-guide.md` | Docs: "Your first contribution" section in CONTRIBUTING.md |
 
 ## For contributors
