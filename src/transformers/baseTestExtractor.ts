@@ -131,6 +131,13 @@ export function emitFixture(
 }
 
 function stripDriverBoilerplate(body: string): string {
+  // A null-guarded lifecycle call is the same boilerplate as the bare call.
+  // Remove the whole block: dropping only the guard line would leave its
+  // closing brace behind in the emitted fixture.
+  body = body.replace(
+    /^[ \t]*if\s*\(\s*driver\s*!=\s*null\s*\)\s*\{\s*\r?\n[ \t]*driver\.(?:quit|close)\s*\(\s*\)\s*;\s*\r?\n[ \t]*\}[ \t]*$/gm,
+    "",
+  );
   // After all the line-level filters below, do one final pass to rewrite
   // bare `driver` identifier references to `page` — the Playwright fixture
   // doesn't expose a `driver` variable, but BaseTest bodies frequently use

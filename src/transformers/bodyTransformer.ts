@@ -160,6 +160,13 @@ export function transformMethodBody(
  * BaseTest). Playwright's `page` fixture handles all of this.
  */
 function stripJavaDriverBoilerplate(body: string): string {
+  // Remove a null-guarded lifecycle call together with its braces. The
+  // line-level patterns below would otherwise drop the guard but leave the
+  // block's closing brace behind.
+  body = body.replace(
+    /^[ \t]*if\s*\(\s*driver\s*!=\s*null\s*\)\s*\{\s*\r?\n[ \t]*driver\.(?:quit|close)\s*\(\s*\)\s*;\s*\r?\n[ \t]*\}[ \t]*$/gm,
+    "",
+  );
   const stripPatterns: RegExp[] = [
     /^\s*System\.setProperty\s*\(\s*"webdriver\..*"\s*,.*\)\s*;\s*$/,
     /^\s*driver\s*=\s*new\s+(?:Chrome|Firefox|Edge|Safari|Remote|InternetExplorer)Driver\s*\([^)]*\)\s*;\s*$/,
