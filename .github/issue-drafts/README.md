@@ -20,6 +20,7 @@ This folder holds pre-written issue bodies for the sel2pw issue tracker. They ar
 | 10 | `10-docs-migration-case-studies.md` | Docs: three real-repo migration case studies for the playbook |
 | 11 | `11-ci-security-scanning.md` | Infrastructure: CodeQL security workflow |
 | 12 | `12-contributing-first-timer-guide.md` | Docs: "Your first contribution" section in CONTRIBUTING.md |
+| 13 | `13-file-mapping-wrong-output-path.md` | Bug: FILE_MAPPING.md maps a test class to the page-object file when names share a stem |
 
 ## For contributors
 
